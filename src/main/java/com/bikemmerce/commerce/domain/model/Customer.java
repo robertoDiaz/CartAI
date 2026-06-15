@@ -11,8 +11,8 @@ public class Customer {
     @NonNull
     private CustomerId customerId;
     @NonNull
-    private Email email;
-    @NonNull
     private String name;
+    @NonNull
+    private Email email;
 
 }
