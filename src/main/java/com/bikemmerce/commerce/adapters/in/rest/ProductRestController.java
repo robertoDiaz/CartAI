@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor // Genera el constructor para la inyección por constructor de Spring
-public class ProductController {
+public class ProductRestController {
 
     private final CreateProductUseCase createProductUseCase;
     private final DeleteProductUseCase deleteProductUseCase;

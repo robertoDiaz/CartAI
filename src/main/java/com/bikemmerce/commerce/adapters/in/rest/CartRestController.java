@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
-public class CartController {
+public class CartRestController {
 
     private final AddShoppingItemToCartUseCase addShoppingItemToCartUseCase;
     private final ClearCartUseCase clearCartUseCase;
