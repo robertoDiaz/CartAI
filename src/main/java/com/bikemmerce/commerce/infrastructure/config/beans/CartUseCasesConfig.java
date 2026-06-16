@@ -1,4 +1,4 @@
-package com.bikemmerce.commerce.infrastructure.config;
+package com.bikemmerce.commerce.infrastructure.config.beans;
 
 import com.bikemmerce.commerce.application.usecases.cart.AddShoppingItemToCartUseCase;
 import com.bikemmerce.commerce.application.usecases.cart.ClearCartUseCase;
