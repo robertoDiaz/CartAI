@@ -4,6 +4,7 @@ import com.bikemmerce.commerce.application.usecases.order.CancelOrderUseCase;
 import com.bikemmerce.commerce.application.usecases.order.CreateOrderUseCase;
 import com.bikemmerce.commerce.application.usecases.order.GetOrderUseCase;
 import com.bikemmerce.commerce.domain.ports.CartRepositoryPort;
+import com.bikemmerce.commerce.domain.ports.IncrementIdGeneratorPort;
 import com.bikemmerce.commerce.domain.ports.OrderRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,10 @@ public class OrderUseCasesConfig {
 
     @Bean
     public CreateOrderUseCase createOrderUseCase(
-            CartRepositoryPort cartRepositoryPort, OrderRepositoryPort orderRepositoryPort) {
-        return new CreateOrderUseCase(cartRepositoryPort, orderRepositoryPort);
+            CartRepositoryPort cartRepositoryPort, OrderRepositoryPort orderRepositoryPort,
+            IncrementIdGeneratorPort incrementIdGeneratorPort) {
+
+        return new CreateOrderUseCase(cartRepositoryPort, orderRepositoryPort, incrementIdGeneratorPort);
     }
 
 }

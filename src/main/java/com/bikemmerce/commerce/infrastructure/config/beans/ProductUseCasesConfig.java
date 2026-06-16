@@ -1,6 +1,7 @@
 package com.bikemmerce.commerce.infrastructure.config.beans;
 
 import com.bikemmerce.commerce.application.usecases.product.*;
+import com.bikemmerce.commerce.domain.ports.IncrementIdGeneratorPort;
 import com.bikemmerce.commerce.domain.ports.ProductRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class ProductUseCasesConfig {
 
     @Bean
-    public CreateProductUseCase createProductUseCase(ProductRepositoryPort productRepositoryPort) {
-        return new CreateProductUseCase(productRepositoryPort);
+    public CreateProductUseCase createProductUseCase(ProductRepositoryPort productRepositoryPort, IncrementIdGeneratorPort incrementIdGeneratorPort) {
+        return new CreateProductUseCase(productRepositoryPort, incrementIdGeneratorPort);
     }
 
     @Bean

@@ -4,6 +4,7 @@ import com.bikemmerce.commerce.application.usecases.customer.CreateCustomerUseCa
 import com.bikemmerce.commerce.application.usecases.customer.GetCustomerUseCase;
 import com.bikemmerce.commerce.application.usecases.customer.UpdateCustomerUseCase;
 import com.bikemmerce.commerce.domain.ports.CustomerRepositoryPort;
+import com.bikemmerce.commerce.domain.ports.IncrementIdGeneratorPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,8 +12,10 @@ import org.springframework.context.annotation.Configuration;
 public class CustomerUseCasesConfig {
 
     @Bean
-    public CreateCustomerUseCase createCustomerUseCase(CustomerRepositoryPort customerRepositoryPort) {
-        return new CreateCustomerUseCase(customerRepositoryPort);
+    public CreateCustomerUseCase createCustomerUseCase(
+            CustomerRepositoryPort customerRepositoryPort, IncrementIdGeneratorPort incrementIdGeneratorPort) {
+
+        return new CreateCustomerUseCase(customerRepositoryPort, incrementIdGeneratorPort);
     }
 
     @Bean

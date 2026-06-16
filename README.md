@@ -26,9 +26,10 @@ This project follows **Hexagonal Architecture (Ports and Adapters)**, dividing t
 
 1. **Domain:** The core business rules. Totally free of any framework dependencies (Spring, MongoDB, etc.). Contains entities, value objects (Records), domain results, and repository ports (interfaces).
 2. **Application (Use Cases):** Orchestrates the flow of data to and from the domain. Contains the execution logic for business actions. Uses the **Command Pattern** (under `commands/` package) to encapsulate and validate inputs from the outer REST layer, separating DTOs from domain model instantiation.
-3. **Adapters (Infrastructure):** Implements the ports defined by the domain. Divided into:
-    - **Incoming (Primary) Adapters:** REST controllers (`/api/products`, `/api/customers`, etc.) mapping incoming REST requests to Application Commands.
-    - **Outgoing (Secondary) Adapters:** MongoDB adapters, mapper functions, and MongoRepositories implementing the secondary ports.
+3. **Infrastructure (Adapters & Frameworks):** Implements the ports defined by the domain and provides framework configuration. Divided into:
+    - **Incoming (Primary) Adapters (`infrastructure/in/rest`):** REST controllers (`/api/products`, `/api/customers`, etc.) mapping incoming REST requests to Application Commands.
+    - **Outgoing (Secondary) Adapters (`infrastructure/out/mongo`):** MongoDB adapters, mapper functions, and MongoRepositories implementing the secondary ports.
+    - **Configuration (`infrastructure/config`):** Spring Bean definitions and environment configs.
 
 ---
 
@@ -36,19 +37,6 @@ This project follows **Hexagonal Architecture (Ports and Adapters)**, dividing t
 
 ```
 src/main/java/com/bikemmerce/commerce/
-├── adapters/                        <-- Adapters (Infrastructure Layer)
-│   ├── in/                          <-- Incoming / Primary Adapters
-│   │   └── rest/
-│   │       ├── dto/                 <-- Request/Response DTOs (split by domains: cart, customer, order, product)
-│   │       ├── mapper/              <-- REST Request DTO -> Application Command & Domain -> REST Response Mappers
-│   │       └── *RestController.java <-- REST Controllers (Cart, Customer, Order, Product)
-│   └── out/                         <-- Outgoing / Secondary Adapters
-│       └── mongo/
-│           ├── adapters/            <-- Outbound Port Implementations (CartMongoAdapter, CustomerMongoAdapter, etc.)
-│           ├── documents/dto/       <-- MongoDB Documents (DTOs representing database records)
-│           ├── mapper/              <-- Document DTO <-> Domain Entity Mappers
-│           └── *MongoRepository.java <-- Spring Data MongoDB Repository Interfaces
-│
 ├── application/                     <-- Application Layer
 │   └── usecases/                    <-- Orchestrators of Business Actions
 │       ├── commands/                <-- Input Command DTOs (e.g. CreateCustomerCommand, CreateProductCommand)
@@ -69,8 +57,20 @@ src/main/java/com/bikemmerce/commerce/
 │   │   └── *RepositoryPort.java
 │   └── result/                      <-- Domain wrapper for result handling (Result<T>)
 │
-└── infrastructure/                  <-- Framework Configurations
-    └── config/                      <-- Spring Bean Configuration for UseCases (Cart, Customer, Order, Product configs)
+└── infrastructure/                  <-- Infrastructure Layer (Adapters & Frameworks)
+    ├── in/                          <-- Incoming / Primary Adapters
+    │   └── rest/
+    │       ├── dto/                 <-- Request/Response DTOs (split by domains: cart, customer, order, product)
+    │       ├── mapper/              <-- REST Request DTO -> Application Command & Domain -> REST Response Mappers
+    │       └── *RestController.java <-- REST Controllers (Cart, Customer, Order, Product)
+    ├── out/                         <-- Outgoing / Secondary Adapters
+    │   └── mongo/
+    │       ├── adapters/            <-- Outbound Port Implementations (CartMongoAdapter, CustomerMongoAdapter, etc.)
+    │       ├── documents/dto/       <-- MongoDB Documents (DTOs representing database records)
+    │       ├── mapper/              <-- Document DTO <-> Domain Entity Mappers
+    │       └── *MongoRepository.java <-- Spring Data MongoDB Repository Interfaces
+    └── config/
+        └── beans/                   <-- Spring Bean Configuration for UseCases (Cart, Customer, Order, Product configs)
 ```
 
 ---
