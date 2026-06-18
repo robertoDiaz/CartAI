@@ -8,14 +8,18 @@ import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.shop.documen
 public class CustomerMapper {
 
     public static CustomerDocument toDocument(Customer customer) {
-        return new CustomerDocument(
-                customer.userId().value(), customer.name(), customer.email().value());
+        return CustomerDocument.builder()
+                .id(customer.userId().value())
+                .name(customer.name())
+                .email(customer.email().value())
+                .build();
     }
 
     public static Customer toDomain(CustomerDocument customerDocument) {
         return new Customer(
-                new UserId(customerDocument.getId()), customerDocument.getName(),
-                new Email(customerDocument.getEmail()));
+                new UserId(customerDocument.getId()),
+                customerDocument.getName(),
+                new Email(customerDocument.getEmail())
+        );
     }
-
 }

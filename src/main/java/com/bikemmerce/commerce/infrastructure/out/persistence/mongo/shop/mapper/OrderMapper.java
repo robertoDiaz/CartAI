@@ -8,17 +8,26 @@ import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.shop.documen
 public class OrderMapper {
 
     public static OrderDocument toDocument(Order order) {
-        return new OrderDocument(
-                order.getOrderId().value(), order.getUserId().value(),
-                order.getShoppingItems().stream().map(ShoppingItemMapper::toDocument).toList(),
-                order.getStatus(), order.getCreateDate());
+        return OrderDocument.builder()
+                .orderId(order.getOrderId().value())
+                .customerId(order.getUserId().value())
+                .shoppingItems(order.getShoppingItems().stream()
+                        .map(ShoppingItemMapper::toDocument)
+                        .toList())
+                .orderStatus(order.getStatus())
+                .createDate(order.getCreateDate())
+                .build();
     }
 
     public static Order toDomain(OrderDocument orderDocument) {
         return new Order(
-                new OrderId(orderDocument.getOrderId()), new UserId(orderDocument.getCustomerId()),
-                orderDocument.getShoppingItems().stream().map(ShoppingItemMapper::toDomain).toList(),
-                orderDocument.getOrderStatus(), orderDocument.getCreateDate());
+                new OrderId(orderDocument.getOrderId()),
+                new UserId(orderDocument.getCustomerId()),
+                orderDocument.getShoppingItems().stream()
+                        .map(ShoppingItemMapper::toDomain)
+                        .toList(),
+                orderDocument.getOrderStatus(),
+                orderDocument.getCreateDate()
+        );
     }
-
 }

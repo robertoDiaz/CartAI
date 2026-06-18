@@ -7,14 +7,20 @@ import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.shop.documen
 public class CartMapper {
 
     public static CartDocument toDocument(Cart cart) {
-        return new CartDocument(
-                cart.getUserId().value(), cart.getShoppingItems().stream().map(ShoppingItemMapper::toDocument).toList());
+        return CartDocument.builder()
+                .customerId(cart.getUserId().value())
+                .shoppingItems(cart.getShoppingItems().stream()
+                        .map(ShoppingItemMapper::toDocument)
+                        .toList())
+                .build();
     }
 
     public static Cart toDomain(CartDocument cartDocument) {
         return new Cart(
                 new UserId(cartDocument.getCustomerId()),
-                cartDocument.getShoppingItems().stream().map(ShoppingItemMapper::toDomain).toList());
+                cartDocument.getShoppingItems().stream()
+                        .map(ShoppingItemMapper::toDomain)
+                        .toList()
+        );
     }
-
 }
