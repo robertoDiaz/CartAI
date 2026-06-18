@@ -17,7 +17,7 @@ public class IncrementIdGeneratorMongoAdapter implements IncrementIdGeneratorPor
 
     private final MongoOperations mongoOperations;
 
-    @Value("${bikemmerce.database.counters.offset:999}")
+    @Value("${bikecommerce.database.counters.offset:999}")
     private long offset;
 
     @Override
