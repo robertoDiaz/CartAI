@@ -1,6 +1,6 @@
 package com.bikemmerce.commerce.infrastructure.out.kafka;
 
-import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents.OutboxTransactionDocument;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.common.documents.OutboxTransactionDocument;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;

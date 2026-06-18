@@ -1,8 +1,11 @@
 package com.bikemmerce.commerce.infrastructure.in.rest;
 
 import com.bikemmerce.commerce.application.usecases.shop.customer.CreateCustomerUseCase;
+import com.bikemmerce.commerce.application.usecases.shop.customer.GetCustomerByEmailUseCase;
 import com.bikemmerce.commerce.application.usecases.shop.customer.GetCustomerUseCase;
 import com.bikemmerce.commerce.application.usecases.shop.customer.UpdateCustomerUseCase;
+import com.bikemmerce.commerce.domain.model.security.value.objects.Email;
+import com.bikemmerce.commerce.domain.model.security.value.objects.UserId;
 import com.bikemmerce.commerce.domain.model.shop.Customer;
 import com.bikemmerce.commerce.domain.result.Result;
 import com.bikemmerce.commerce.infrastructure.in.rest.dto.customer.CreateCustomerRestRequest;
@@ -20,6 +23,7 @@ public class CustomerRestController {
 
     private final CreateCustomerUseCase createCustomerUseCase;
     private final GetCustomerUseCase getCustomerUseCase;
+    private final GetCustomerByEmailUseCase getCustomerByEmailUseCase;
     private final UpdateCustomerUseCase updateCustomerUseCase;
 
     @PostMapping
@@ -46,7 +50,7 @@ public class CustomerRestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCustomerById(@PathVariable String id) {
-        Result<Customer> result = getCustomerUseCase.execute(id, null);
+        Result<Customer> result = getCustomerUseCase.execute(new UserId(id));
 
         if (result.hasError()) {
             return ResponseEntity.status(result.getErrorCode()).body("Not found.");
@@ -57,7 +61,7 @@ public class CustomerRestController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getCustomerByEmail(@PathVariable String email) {
-        Result<Customer> result = getCustomerUseCase.execute(null, email);
+        Result<Customer> result = getCustomerByEmailUseCase.execute(new Email(email));
 
         if (result.hasError()) {
             return ResponseEntity.status(result.getErrorCode()).body("Not found.");

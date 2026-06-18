@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 @UseCase
-public class GetUserUseCase {
+public class DeleteUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
 
@@ -20,6 +20,8 @@ public class GetUserUseCase {
         if (user == null) {
             return Result.error(HttpStatus.NOT_FOUND.value());
         }
+
+        userRepositoryPort.delete(userId);
 
         return Result.success(user);
     }

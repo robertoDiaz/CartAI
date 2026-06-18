@@ -6,8 +6,8 @@ import com.bikemmerce.commerce.domain.model.security.value.objects.Email;
 import com.bikemmerce.commerce.domain.model.security.value.objects.UserId;
 import com.bikemmerce.commerce.domain.model.shop.Customer;
 import com.bikemmerce.commerce.domain.model.shop.value.objects.CustomerAddedEvent;
+import com.bikemmerce.commerce.domain.ports.common.IncrementIdGeneratorPort;
 import com.bikemmerce.commerce.domain.ports.shop.CustomerRepositoryPort;
-import com.bikemmerce.commerce.domain.ports.shop.IncrementIdGeneratorPort;
 import com.bikemmerce.commerce.domain.ports.shop.events.CustomerAddedEventPublisherPort;
 import com.bikemmerce.commerce.domain.result.Result;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,7 @@ public class CreateCustomerUseCase {
     private final IncrementIdGeneratorPort incrementIdGeneratorPort;
 
     public Result<Customer> execute(CreateCustomerCommand command) {
-        UserId userId = new UserId(
-                incrementIdGeneratorPort.increment(Customer.class).toString());
+        UserId userId = new UserId(incrementIdGeneratorPort.generate(Customer.class));
 
         Email email = new Email(command.email());
 

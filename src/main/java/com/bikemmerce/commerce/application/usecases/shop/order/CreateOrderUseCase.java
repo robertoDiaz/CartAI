@@ -7,8 +7,8 @@ import com.bikemmerce.commerce.domain.model.shop.Cart;
 import com.bikemmerce.commerce.domain.model.shop.Order;
 import com.bikemmerce.commerce.domain.model.shop.value.objects.OrderId;
 import com.bikemmerce.commerce.domain.model.shop.value.objects.OrderPlacedEvent;
+import com.bikemmerce.commerce.domain.ports.common.IncrementIdGeneratorPort;
 import com.bikemmerce.commerce.domain.ports.shop.CartRepositoryPort;
-import com.bikemmerce.commerce.domain.ports.shop.IncrementIdGeneratorPort;
 import com.bikemmerce.commerce.domain.ports.shop.OrderRepositoryPort;
 import com.bikemmerce.commerce.domain.ports.shop.events.OrderPlacedEventPublisherPort;
 import com.bikemmerce.commerce.domain.result.Result;
@@ -27,8 +27,7 @@ public class CreateOrderUseCase {
     private final OrderPlacedEventPublisherPort orderPlacedEventPublisherPort;
 
     public Result<Order> execute(UserId userId) {
-        OrderId orderId = new OrderId(
-                incrementIdGeneratorPort.increment(Order.class).toString());
+        OrderId orderId = new OrderId(incrementIdGeneratorPort.generate(Order.class));
 
         if (orderRepositoryPort.find(orderId) != null) {
             return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -36,13 +35,17 @@ public class CreateOrderUseCase {
 
         Cart cart = cartRepositoryPort.find(userId);
 
-        Order order = new Order(
-                orderId, cart.getUserId(), cart.getShoppingItems(), OrderStatus.CREATED, new Date());
-
+        Order order = orderRepositoryPort.save(new Order(
+                orderId,
+                cart.getUserId(),
+                cart.getShoppingItems(),
+                OrderStatus.CREATED,
+                new Date()));
 
         orderPlacedEventPublisherPort.publish(
-                new OrderPlacedEvent(orderId, order.getUserId(), order.getTotalPrice(), order.getStatus(), order.getCreateDate()));
+                new OrderPlacedEvent(
+                        orderId, order.getUserId(), order.getTotalPrice(), order.getStatus(), order.getCreateDate()));
 
-        return Result.success(orderRepositoryPort.save(order));
+        return Result.success(order);
     }
 }
