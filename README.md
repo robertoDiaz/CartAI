@@ -1,4 +1,4 @@
-# Cart·AI
+# Cart·AI Shopping
 
 <img src="assets/logoCartAI.png" alt="Cart·AI Logo" width="120" />
 
