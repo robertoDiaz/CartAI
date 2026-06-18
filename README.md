@@ -1,10 +1,9 @@
 # Cart·AI Shopping
 
-<img src="assets/logoCartAI.png" alt="Cart·AI Logo" width="120" />
+<img src="src/main/resources/logo/logoCartAI.png" alt="Cart·AI Shopping Logo" width="120" />
 
-Cart·AI is a modern e-commerce backend platform built to demonstrate clean coding practices, microservices design
-patterns, and robust event-driven architecture. The core business focus is the cataloging, shopping cart management, and
-ordering of bicycles and related sports equipment.
+Cart·AI Shopping is a modern e-commerce backend platform built using clean coding practices, microservices design
+patterns, and robust event-driven architecture.
 
 This project is built using **Hexagonal Architecture (Ports & Adapters)** to keep business logic completely decoupled
 from external frameworks, database technologies, and messaging systems.
