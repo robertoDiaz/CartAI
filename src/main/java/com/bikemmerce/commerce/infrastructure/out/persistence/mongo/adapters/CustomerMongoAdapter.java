@@ -1,11 +1,11 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.adapters;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.adapters;
 
 import com.bikemmerce.commerce.domain.model.Customer;
 import com.bikemmerce.commerce.domain.model.value.objects.CustomerId;
 import com.bikemmerce.commerce.domain.model.value.objects.Email;
 import com.bikemmerce.commerce.domain.ports.CustomerRepositoryPort;
-import com.bikemmerce.commerce.infrastructure.out.mongo.CustomerMongoRepository;
-import com.bikemmerce.commerce.infrastructure.out.mongo.mapper.CustomerMapper;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.CustomerMongoRepository;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.mapper.CustomerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

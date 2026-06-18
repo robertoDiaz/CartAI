@@ -1,4 +1,4 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.documents.dto;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents;
 
 import com.bikemmerce.commerce.domain.model.value.objects.Email;
 import lombok.Data;

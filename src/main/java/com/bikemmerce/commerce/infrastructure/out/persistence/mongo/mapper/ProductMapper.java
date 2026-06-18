@@ -1,8 +1,8 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.mapper;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.mapper;
 
 import com.bikemmerce.commerce.domain.model.Product;
 import com.bikemmerce.commerce.domain.model.value.objects.ProductId;
-import com.bikemmerce.commerce.infrastructure.out.mongo.documents.dto.ProductDocument;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents.ProductDocument;
 
 public class ProductMapper {
 

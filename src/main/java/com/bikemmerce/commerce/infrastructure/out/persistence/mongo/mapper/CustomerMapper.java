@@ -1,8 +1,8 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.mapper;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.mapper;
 
 import com.bikemmerce.commerce.domain.model.Customer;
 import com.bikemmerce.commerce.domain.model.value.objects.CustomerId;
-import com.bikemmerce.commerce.infrastructure.out.mongo.documents.dto.CustomerDocument;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents.CustomerDocument;
 
 public class CustomerMapper {
 

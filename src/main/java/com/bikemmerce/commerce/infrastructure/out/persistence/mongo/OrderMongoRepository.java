@@ -1,6 +1,6 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo;
 
-import com.bikemmerce.commerce.infrastructure.out.mongo.documents.dto.OrderDocument;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents.OrderDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

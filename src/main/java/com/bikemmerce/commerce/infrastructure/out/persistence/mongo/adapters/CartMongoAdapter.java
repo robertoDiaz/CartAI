@@ -1,10 +1,10 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.adapters;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.adapters;
 
 import com.bikemmerce.commerce.domain.model.Cart;
 import com.bikemmerce.commerce.domain.model.value.objects.CustomerId;
 import com.bikemmerce.commerce.domain.ports.CartRepositoryPort;
-import com.bikemmerce.commerce.infrastructure.out.mongo.CartMongoRepository;
-import com.bikemmerce.commerce.infrastructure.out.mongo.mapper.CartMapper;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.CartMongoRepository;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.mapper.CartMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.mapper;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.mapper;
 
 import com.bikemmerce.commerce.domain.model.Cart;
 import com.bikemmerce.commerce.domain.model.value.objects.CustomerId;
-import com.bikemmerce.commerce.infrastructure.out.mongo.documents.dto.CartDocument;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents.CartDocument;
 
 public class CartMapper {
 

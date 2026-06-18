@@ -1,4 +1,4 @@
-package com.bikemmerce.commerce.infrastructure.out.mongo.documents.dto;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.documents;
 
 import java.math.BigDecimal;
 
