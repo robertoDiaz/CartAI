@@ -1,43 +1,108 @@
 # Bikemmerce
 
-Bikemmerce is a personal e-commerce project designed to demonstrate clean coding practices, modern Java development, and
-scalable system design. The project is focused on selling bicycles and related sports equipment.
+Bikemmerce is a modern e-commerce backend platform built to demonstrate clean coding practices, microservices design patterns, and robust event-driven architecture. The core business focus is the cataloging, shopping cart management, and ordering of bicycles and related sports equipment.
 
-This project is built using **Hexagonal Architecture (Ports & Adapters)** to keep the core business logic completely
-separated from external frameworks, databases, and message queues.
+This project is built using **Hexagonal Architecture (Ports & Adapters)** to keep business logic completely decoupled from external frameworks, database technologies, and messaging systems.
 
-> [!NOTE]
-> This is a work in progress and is continuously evolving. More features and integrations are being added incrementally.
+---
+
+## 🏛️ System Architecture
+
+The project follows a pure Hexagonal Architecture separation, ensuring that the domain model remains free of infrastructure concerns (like Spring annotations or database entities).
+
+```mermaid
+graph TD
+    %% Primary Adapters (Incoming)
+    subgraph Primary [Primary Adapters]
+        RestAPI["REST Controllers (Cart, Customer, Order, Product)"]
+        KafkaListeners["Kafka Listeners (CustomerAddedEventListener, OrderPlacedEventNotificationListener)"]
+    end
+
+    %% Application Layer
+    subgraph Application [Application Layer]
+        UseCases["Use Cases Orchestrators"]
+        Commands["Command DTOs"]
+    end
+
+    %% Core Domain
+    subgraph Core [Domain Layer]
+        DomainEntities["Domain Entities (Order, Cart, Customer, Product)"]
+        ValueObjects["Value Objects (CustomerId, Email, ProductId, OrderId)"]
+        PortsIn["Incoming Ports (Use Case Interfaces)"]
+        PortsOut["Outgoing Ports (Repository & Publisher Interfaces)"]
+    end
+
+    %% Secondary Adapters (Outgoing)
+    subgraph Secondary [Secondary Adapters]
+        MongoAdapters["MongoDB Adapters (MongoTemplate, Repositories)"]
+        OutboxAdapters["Outbox Adapters (OutboxTransactionDocument)"]
+        KafkaPublishers["Kafka Outbound Adapters (OutboxTransactionScheduler -> KafkaTemplate)"]
+    end
+
+    %% External Infrastructure
+    subgraph Infrastructure [External Services]
+        MongoDB[("MongoDB Database")]
+        KafkaCluster["Apache Kafka Broker"]
+    end
+
+    %% Connections
+    RestAPI --> Commands
+    Commands --> UseCases
+    UseCases -.-> PortsIn
+    PortsIn --> DomainEntities
+    DomainEntities --> ValueObjects
+    UseCases --> PortsOut
+    
+    MongoAdapters -.-> PortsOut
+    OutboxAdapters -.-> PortsOut
+    
+    MongoAdapters --> MongoDB
+    OutboxAdapters --> MongoDB
+    
+    KafkaListeners --> UseCases
+    KafkaPublishers --> KafkaCluster
+    KafkaCluster --> KafkaListeners
+    
+    %% Outbox Scheduling
+    KafkaPublishers --> MongoDB
+```
 
 ---
 
 ## 🛠️ Technology Stack
 
 - **Backend:** Spring Boot 3.5 (Java 21)
-- **Database:** MongoDB (catalog, orders, and cart storage)
-- **Event Streaming:** Apache Kafka (scheduled for integration)
+- **Database:** MongoDB (Catalog, Outbox, Order, and Cart storage)
+- **Event Streaming:** Apache Kafka (Spring Kafka)
 - **Build Tool:** Gradle
 - **Boilerplate Reduction:** Lombok
 - **API Documentation:** Springdoc OpenAPI / Swagger
 
 ---
 
-## 🏛️ Architectural Overview
+## 🚀 Implemented Patterns & Best Practices
 
-This project follows **Hexagonal Architecture (Ports and Adapters)**, dividing the codebase into three main layers:
+### 1. Transactional Outbox Pattern
+To guarantee **At-Least-Once Delivery** and prevent inconsistencies between database updates and event publishing (e.g., publishing a message to Kafka for a database transaction that ultimately failed and rolled back), we implement the Transactional Outbox Pattern:
+*   Instead of publishing events directly to Kafka in the request thread, events are saved in an `outbox_transaction` collection inside MongoDB within the same database transaction as the business entity.
+*   An asynchronous [OutboxTransactionScheduler](file:///Users/rober/IdeaProjects/Bikemmerce/src/main/java/com/bikemmerce/commerce/infrastructure/out/kafka/OutboxTransactionScheduler.java) polls MongoDB, publishes the events, and updates their status.
 
-1. **Domain:** The core business rules. Totally free of any framework dependencies (Spring, MongoDB, etc.). Contains
-   entities, value objects (Records), domain results, and repository ports (interfaces).
-2. **Application (Use Cases):** Orchestrates the flow of data to and from the domain. Contains the execution logic for
-   business actions. Uses the **Command Pattern** (under `commands/` package) to encapsulate and validate inputs from
-   the outer REST layer, separating DTOs from domain model instantiation.
-3. **Infrastructure (Adapters & Frameworks):** Implements the ports defined by the domain and provides framework
-   configuration. Divided into:
-    - **Incoming (Primary) Adapters (`infrastructure/in/rest`):** REST controllers (`/api/products`, `/api/customers`,
-      etc.) mapping incoming REST requests to Application Commands.
-    - **Outgoing (Secondary) Adapters (`infrastructure/out/mongo`):** MongoDB adapters, mapper functions, and
-      MongoRepositories implementing the secondary ports.
-    - **Configuration (`infrastructure/config`):** Spring Bean definitions and environment configs.
+### 2. Distributed Locking & Concurrent Mutual Exclusion
+To secure the Outbox Scheduler in clustered or multi-instance environments:
+*   Instead of a simple database fetch-and-update (which causes race conditions where multiple replicas dispatch the same message), we use an atomic `findAndModify` operation.
+*   This operation retrieves a pending message and updates its status to `PROCESSING` in a single atomic step at the database level. Other instances are prevented from pulling the same message, ensuring zero duplication at the scheduler level.
+
+### 3. Kafka Resilience & Poison Pill Mitigation
+*   **Centralized Error Handling:** We use a global `CommonErrorHandler` configured with `DeadLetterPublishingRecoverer` in [KafkaConfig](file:///Users/rober/IdeaProjects/Bikemmerce/src/main/java/com/bikemmerce/commerce/infrastructure/config/KafkaConfig.java). This isolates failing payloads to a dedicated `<topic-name>.DLT` topic after 3 failed attempts (1 original + 2 retries), avoiding partition blockage.
+*   **ErrorHandlingDeserializer:** Configured in [application.properties](file:///Users/rober/IdeaProjects/Bikemmerce/src/main/resources/application.properties) to intercept parsing/deserialization errors immediately. This prevents invalid payloads (Poison Pills) from freezing the consumer thread.
+*   **Custom Meta-Annotations:** We use a custom [BikecommerceEventListener](file:///Users/rober/IdeaProjects/Bikemmerce/src/main/java/com/bikemmerce/commerce/infrastructure/in/kafka/annotation/BikecommerceEventListener.java) annotation wrapping `@KafkaListener` to cleanly distribute retry and recovery properties without repeating boilerplate code on every listener.
+
+### 4. End-to-End Idempotency
+*   **Producer Idempotency:** Enabled via `spring.kafka.producer.properties.enable.idempotence=true` to ensure network failures and retries between the application and the Kafka brokers do not write duplicate messages inside the topics.
+*   **Consumer Idempotency:** Application state validation (e.g., verifying if a shopping cart already exists before creating it) is implemented to handle double-delivery scenarios gracefully.
+
+### 5. Strict Event Ordering
+*   To ensure all actions related to a single customer are processed in the sequence they occurred, events are partitioned using the `customerId` as the Kafka message key (configured in the Outbox message entity), routing all customer-scoped events to the same partition.
 
 ---
 
@@ -45,57 +110,48 @@ This project follows **Hexagonal Architecture (Ports and Adapters)**, dividing t
 
 ```
 src/main/java/com/bikemmerce/commerce/
-├── application/                     <-- Application Layer
-│   └── usecases/                    <-- Orchestrators of Business Actions
-│       ├── commands/                <-- Input Command DTOs (e.g. CreateCustomerCommand, CreateProductCommand)
-│       ├── cart/                    <-- Cart Use Cases (Add, Clear, Get, Remove)
-│       ├── customer/                <-- Customer Use Cases (Create, Get, Update)
-│       ├── order/                   <-- Order Use Cases (Cancel, Create, Get)
-│       └── product/                 <-- Product Use Cases (Create, Delete, Get, List, Update)
+├── application/                      <-- Application Layer (Orchestration & Command Pattern)
+│   └── usecases/                     
+│       ├── commands/                 <-- Input Command DTOs
+│       ├── cart/                     <-- Cart Use Cases (Add, Clear, Get, Remove)
+│       ├── customer/                 <-- Customer Use Cases (Create, Get, Update)
+│       ├── order/                    <-- Order Use Cases (Cancel, Create, Get)
+│       └── product/                  <-- Product Use Cases (Create, Delete, Get, List, Update)
 │
-├── domain/                          <-- Pure Domain Layer (Business Logic)
-│   ├── model/                       <-- Entities and Value Objects
-│   │   ├── constants/               <-- OrderStatus, etc.
-│   │   ├── value/objects/           <-- Immutable Value Objects (Records: CustomerId, Email, ProductId, OrderId)
+├── domain/                           <-- Pure Domain Layer (Framework-free Business Logic)
+│   ├── model/                        Entities & Value Objects
+│   │   ├── constants/                
+│   │   ├── value/objects/            <-- Immutable Value Objects (Records: CustomerId, Email, ProductId, OrderId)
 │   │   ├── Cart.java
 │   │   ├── Customer.java
 │   │   ├── Order.java
 │   │   └── Product.java
-│   ├── ports/                       <-- Outgoing Ports (Repository Interfaces)
-│   │   └── *RepositoryPort.java
-│   └── result/                      <-- Domain wrapper for result handling (Result<T>)
+│   ├── ports/                        <-- Outgoing Ports (Repository & Publisher Interfaces)
+│   └── result/                       <-- Error Handling Wrappers
 │
-└── infrastructure/                  <-- Infrastructure Layer (Adapters & Frameworks)
-    ├── in/                          <-- Incoming / Primary Adapters
-    │   └── rest/
-    │       ├── dto/                 <-- Request/Response DTOs (split by domains: cart, customer, order, product)
-    │       ├── mapper/              <-- REST Request DTO -> Application Command & Domain -> REST Response Mappers
-    │       └── *RestController.java <-- REST Controllers (Cart, Customer, Order, Product)
-    ├── out/                         <-- Outgoing / Secondary Adapters
-    │   └── mongo/
-    │       ├── adapters/            <-- Outbound Port Implementations (CartMongoAdapter, CustomerMongoAdapter, etc.)
-    │       ├── documents/dto/       <-- MongoDB Documents (DTOs representing database records)
-    │       ├── mapper/              <-- Document DTO <-> Domain Entity Mappers
-    │       └── *MongoRepository.java <-- Spring Data MongoDB Repository Interfaces
-    └── config/
-        └── beans/                   <-- Spring Bean Configuration for UseCases (Cart, Customer, Order, Product configs)
+└── infrastructure/                   <-- Infrastructure Layer (Frameworks & Adapters)
+    ├── config/                       <-- Configurations (Beans, Kafka Error Handlers)
+    ├── in/                           <-- Primary / Inbound Adapters (REST, Kafka Listeners)
+    │   ├── kafka/                    
+    │   └── rest/                     
+    └── out/                          <-- Secondary / Outbound Adapters (MongoDB, Kafka Producers)
+        ├── kafka/                    <-- Outbox Schedulers & Publishers
+        └── persistence/mongo/        <-- Mongo Adapters, Documents, and Mappers
 ```
 
 ---
 
-## 🚀 Future Roadmap
+## 🔮 Future Roadmap
 
-- [ ] **Apache Kafka Integration:**
-    - Setup Kafka brokers.
-    - Implement Event Producers to publish events when an Order is placed or cancelled.
-    - Implement asynchronous consumers (e.g., notification services, updating product stock).
-- [ ] **Testing Suite:**
-    - Unit tests using JUnit 5 and Mockito.
-    - Integration tests using Testcontainers for MongoDB and Kafka.
-- [ ] **Product Images Support:**
-    - Modify Product model to include images.
-    - Set up a media repository to save images (local storage or remote S3 buckets).
-- [ ] **Web Interface:**
-    - Develop a modern web application using React or Angular.
-- [ ] **Cloud Deployment:**
-    - Deploy the system in AWS (utilizing Free Tier options like EC2, ECS, or Elastic Beanstalk).
+- [ ] **React Frontend Application:**
+    - Build a modern user interface using React, TypeScript, and Vite.
+    - Leverage HSL-tailored designs, subtle animations, and fully responsive grids for product listing, cart checkout, and customer dashboards.
+- [ ] **Dockerization & Orchestration:**
+    - Containerize the Spring Boot backend, the React frontend, MongoDB, and Apache Kafka.
+    - Provide a single `docker-compose.yml` to spin up the entire local development environment instantly.
+- [ ] **AWS Cloud Deployment:**
+    - Set up secure infrastructure on AWS (EC2/ECS, DocumentDB for Mongo, MSK for Kafka).
+    - Implement TLS/SSL security and SASL/SCRAM authentication for Apache Kafka.
+- [ ] **Comprehensive Testing Suite:**
+    - **Unit & Integration:** JUnit 5, Mockito, and Testcontainers to spin up isolated MongoDB/Kafka instances for integration testing.
+    - **End-to-End (E2E) / Functional:** Write automated UI and API workflow tests using Playwright.
