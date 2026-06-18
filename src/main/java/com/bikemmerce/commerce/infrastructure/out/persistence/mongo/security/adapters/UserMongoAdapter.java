@@ -8,6 +8,7 @@ import com.bikemmerce.commerce.domain.model.security.value.objects.UserId;
 import com.bikemmerce.commerce.domain.ports.security.UserRepositoryPort;
 import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.security.UserMongoRepository;
 import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.security.documents.UserDocument;
+import com.bikemmerce.commerce.infrastructure.out.persistence.mongo.security.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -50,17 +51,7 @@ public class UserMongoAdapter implements UserRepositoryPort {
 
     @Override
     public User save(User user) {
-        UserDocument doc = UserDocument.builder()
-                .id(user.userId().value())
-                .name(user.name())
-                .email(user.email().value())
-                .passwordHash("") // La contraseña no está en el record del dominio User
-                .roleIds(user.roles().stream()
-                        .map(role -> role.id().value())
-                        .collect(Collectors.toSet()))
-                .build();
-
-        return toDomain(userMongoRepository.save(doc));
+        return toDomain(userMongoRepository.save(UserMapper.toDocument(user)));
     }
 
     private User toDomain(UserDocument doc) {
@@ -68,11 +59,7 @@ public class UserMongoAdapter implements UserRepositoryPort {
                 .map(roleId -> roleMongoAdapter.findByRoleId(new RoleId(roleId)))
                 .collect(Collectors.toSet());
 
-        return new User(
-                new UserId(doc.getId()),
-                doc.getName(),
-                new Email(doc.getEmail()),
-                roles
-        );
+        return UserMapper.toDomain(doc, roles);
     }
+
 }

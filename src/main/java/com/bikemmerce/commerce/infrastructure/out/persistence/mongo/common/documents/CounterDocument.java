@@ -1,4 +1,4 @@
-package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.shop.documents;
+package com.bikemmerce.commerce.infrastructure.out.persistence.mongo.common.documents;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

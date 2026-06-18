@@ -7,6 +7,7 @@ import com.bikemmerce.commerce.domain.model.security.value.objects.Email;
 import com.bikemmerce.commerce.domain.model.security.value.objects.UserAddedEvent;
 import com.bikemmerce.commerce.domain.model.security.value.objects.UserId;
 import com.bikemmerce.commerce.domain.ports.common.IncrementIdGeneratorPort;
+import com.bikemmerce.commerce.domain.ports.security.PasswordEncoderPort;
 import com.bikemmerce.commerce.domain.ports.security.UserRepositoryPort;
 import com.bikemmerce.commerce.domain.ports.security.events.UserAddedEventPublisherPort;
 import com.bikemmerce.commerce.domain.result.Result;
@@ -20,6 +21,7 @@ public class CreateUserUseCase {
     private final UserRepositoryPort userRepositoryPort;
     private final UserAddedEventPublisherPort userAddedEventPublisherPort;
     private final IncrementIdGeneratorPort incrementIdGeneratorPort;
+    private final PasswordEncoderPort passwordEncoderPort;
 
     public Result<User> execute(CreateUserCommand command) {
         Email email = new Email(command.email());
@@ -29,8 +31,15 @@ public class CreateUserUseCase {
         }
 
         UserId userId = new UserId(incrementIdGeneratorPort.generate(User.class));
+        String passwordHash = passwordEncoderPort.encode(command.password());
 
-        User user = userRepositoryPort.save(new User(userId, command.name(), email, command.roles()));
+        User user = userRepositoryPort.save(new User(
+                userId, 
+                command.name(), 
+                email, 
+                passwordHash, 
+                command.roles()
+        ));
 
         userAddedEventPublisherPort.added(new UserAddedEvent(
                 user.userId(),

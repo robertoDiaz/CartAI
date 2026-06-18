@@ -14,6 +14,9 @@ public record CreateUserCommand(
         @NotBlank(message = "Email is mandatory")
         String email,
 
+        @NotBlank(message = "Password is mandatory")
+        String password,
+
         @NotNull
         Set<Role> roles
 
