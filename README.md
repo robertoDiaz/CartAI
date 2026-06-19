@@ -19,7 +19,7 @@ infrastructure concerns (like Spring annotations or database entities).
 graph TD
     %% Primary Adapters (Incoming)
     subgraph Primary [Primary Adapters]
-        RestAPI["REST Controllers (Cart, Customer, Order, Product)"]
+        RestAPI["REST Controllers (Cart, Customer, Order, Product, Auth)"]
         KafkaListeners["Kafka Listeners (CustomerAddedEventListener, OrderPlacedEventNotificationListener)"]
     end
 
@@ -31,8 +31,8 @@ graph TD
 
     %% Core Domain
     subgraph Core [Domain Layer]
-        DomainEntities["Domain Entities (Order, Cart, Customer, Product)"]
-        ValueObjects["Value Objects (CustomerId, Email, ProductId, OrderId)"]
+        DomainEntities["Domain Entities (Order, Cart, Customer, Product, User, Role)"]
+        ValueObjects["Value Objects (CustomerId, Email, ProductId, OrderId, UserId, RoleId)"]
         PortsIn["Incoming Ports (Use Case Interfaces)"]
         PortsOut["Outgoing Ports (Repository & Publisher Interfaces)"]
     end
@@ -77,7 +77,8 @@ graph TD
 ## 🛠️ Technology Stack
 
 - **Backend:** Spring Boot 3.5 (Java 21)
-- **Database:** MongoDB (Catalog, Outbox, Order, and Cart storage)
+- **Security:** Spring Security & JSON Web Tokens (JWT)
+- **Database:** MongoDB (Catalog, Outbox, Order, Cart, Users, and Roles storage)
 - **Event Streaming:** Apache Kafka (Spring Kafka)
 - **Build Tool:** Gradle
 - **Boilerplate Reduction:** Lombok
@@ -87,7 +88,14 @@ graph TD
 
 ## 🚀 Implemented Patterns & Best Practices
 
-### 1. Transactional Outbox Pattern
+### 1. Security & Authentication (JWT + Spring Security)
+
+* Custom security filter chains configured using Hexagonal architecture adapters.
+* Authenticated endpoints using **JSON Web Tokens (JWT)**.
+* Password hashing using **BCrypt** through an outgoing port.
+* Sub-domain architecture support for security including roles (e.g. `User`, `Role`, `Permission`).
+
+### 2. Transactional Outbox Pattern
 
 To guarantee **At-Least-Once Delivery** and prevent inconsistencies between database updates and event publishing (e.g.,
 publishing a message to Kafka for a database transaction that ultimately failed and rolled back), we implement the
@@ -96,10 +104,10 @@ Transactional Outbox Pattern:
 * Instead of publishing events directly to Kafka in the request thread, events are saved in an `outbox_transaction`
   collection inside MongoDB within the same database transaction as the business entity.
 * An
-  asynchronous [OutboxTransactionScheduler](file:///Users/rober/IdeaProjects/CartAI/src/main/java/cart/ai/infrastructure/out/kafka/OutboxTransactionScheduler.java)
+  asynchronous [OutboxTransactionScheduler](file:///Users/rober/work/CartAI/src/main/java/cart/ai/shopping/infrastructure/out/kafka/OutboxTransactionScheduler.java)
   polls MongoDB, publishes the events, and updates their status.
 
-### 2. Distributed Locking & Concurrent Mutual Exclusion
+### 3. Distributed Locking & Concurrent Mutual Exclusion
 
 To secure the Outbox Scheduler in clustered or multi-instance environments:
 
@@ -109,25 +117,25 @@ To secure the Outbox Scheduler in clustered or multi-instance environments:
   database level. Other instances are prevented from pulling the same message, ensuring zero duplication at the
   scheduler level.
 
-### 3. Kafka Resilience & Poison Pill Mitigation
+### 4. Kafka Resilience & Poison Pill Mitigation
 
 * **Centralized Error Handling:** We use a global `CommonErrorHandler` configured with `DeadLetterPublishingRecoverer`
-  in [KafkaErrorHandlerConfig](file:///Users/rober/IdeaProjects/CartAI/src/main/java/cart/ai/infrastructure/config/kafka/KafkaErrorHandlerConfig.java).
+  in [KafkaErrorHandlerConfig](file:///Users/rober/work/CartAI/src/main/java/cart/ai/shopping/infrastructure/config/kafka/KafkaErrorHandlerConfig.java).
   This isolates failing payloads to a dedicated `<topic-name>.DLT` topic after 3 failed attempts (1 original + 2
   retries), avoiding partition blockage.
 * **ErrorHandlingDeserializer:** Configured
-  in [application.properties](file:///Users/rober/IdeaProjects/CartAI/src/main/resources/application.properties) to
+  in [application.properties](file:///Users/rober/work/CartAI/src/main/resources/application.properties) to
   intercept parsing/deserialization errors immediately. This prevents invalid payloads (Poison Pills) from freezing the
   consumer thread.
 
-### 4. End-to-End Idempotency
+### 5. End-to-End Idempotency
 
 * **Producer Idempotency:** Enabled via `spring.kafka.producer.properties.enable.idempotence=true` to ensure network
   failures and retries between the application and the Kafka brokers do not write duplicate messages inside the topics.
 * **Consumer Idempotency:** Application state validation (e.g., verifying if a shopping cart already exists before
   creating it) is implemented to handle double-delivery scenarios gracefully.
 
-### 5. Strict Event Ordering
+### 6. Strict Event Ordering
 
 * To ensure all actions related to a single customer are processed in the sequence they occurred, events are partitioned
   using the `userId` as the Kafka message key (configured in the Outbox message entity), routing all customer-scoped
@@ -138,40 +146,47 @@ To secure the Outbox Scheduler in clustered or multi-instance environments:
 ## 📂 Project Structure
 
 ```
-src/main/java/cart/ai/
+src/main/java/cart/ai/shopping/
 ├── application/                      <-- Application Layer (Orchestration & Command Pattern)
 │   └── usecases/                     
-│       ├── commands/                 <-- Input Command DTOs
-│       ├── cart/                     <-- Cart Use Cases (Add, Clear, Get, Remove)
-│       ├── customer/                 <-- Customer Use Cases (Create, Get, Update)
-│       ├── order/                    <-- Order Use Cases (Cancel, Create, Get)
-│       └── product/                  <-- Product Use Cases (Create, Delete, Get, List, Update)
+│       ├── identity/                 <-- Identity Use Cases (Login, Register, User, Role management)
+│       │   ├── commands/             
+│       │   ├── role/                 
+│       │   └── user/                 
+│       └── shop/                     <-- Shop Use Cases (Cart, Customer, Order, Product)
+│           ├── commands/             
+│           ├── cart/                 
+│           ├── customer/             
+│           ├── order/                
+│           └── product/              
 │
 ├── domain/                           <-- Pure Domain Layer (Framework-free Business Logic)
-│   ├── model/                        Entities & Value Objects
-│   │   ├── constants/                
-│   │   ├── value/objects/            <-- Immutable Value Objects (Records: CustomerId, Email, ProductId, OrderId)
-│   │   ├── Cart.java
-│   │   ├── Customer.java
-│   │   ├── Order.java
-│   │   └── Product.java
-│   ├── ports/                        <-- Outgoing Ports (Repository & Publisher Interfaces)
-│   └── result/                       <-- Error Handling Wrappers
+│   ├── common/                       <-- Common Domain Wrappers (result/Result.java)
+│   ├── model/                        
+│   │   ├── identity/                 <-- Identity Domain Models (User, Role, Permission) & vos/ (Email, UserId, etc.)
+│   │   └── shop/                     <-- Shop Domain Models (Cart, Customer, Order, Product) & vos/ (OrderId, etc.)
+│   └── ports/                        <-- Interfaces
+│       ├── common/                   <-- Common Ports (IncrementIdGeneratorPort)
+│       ├── identity/                 <-- Identity Ports (Repositories, Events, PasswordEncoderPort)
+│       └── shop/                     <-- Shop Ports (Repositories, Events)
 │
 └── infrastructure/                   <-- Infrastructure Layer (Frameworks & Adapters)
-    ├── config/                       <-- Configurations (Beans, Kafka Error Handlers)
-    ├── in/                           <-- Primary / Inbound Adapters (REST, Kafka Listeners)
-    │   ├── kafka/                    
-    │   └── rest/                     
-    └── out/                          <-- Secondary / Outbound Adapters (MongoDB, Kafka Producers)
-        ├── kafka/                    <-- Outbox Schedulers & Publishers
-        └── persistence/mongo/        <-- Mongo Adapters, Documents, and Mappers
+    ├── config/                       <-- Configurations (Kafka, UseCaseInjectionConfig)
+    ├── in/                           <-- Primary / Inbound Adapters
+    │   ├── kafka/                    <-- Kafka Event Listeners (shop events)
+    │   └── rest/                     <-- REST Controllers (shop and identity controllers)
+    ├── out/                          <-- Secondary / Outbound Adapters
+    │   ├── kafka/                    <-- Outbox Schedulers & Publishers
+    │   └── persistence/mongo/        <-- Mongo Adapters, Documents, and Mappers (common, identity, shop)
+    └── security/                     <-- Security Technical Layer (configs, filters, services, adapters)
 ```
 
 ---
 
 ## 🔮 Future Roadmap
 
+- [ ] **MinIO / S3 Storage Integration:**
+  - Support storing and retrieving product, user, and customer images using an S3-compatible service (MinIO).
 - [ ] **React Frontend Application:**
     - Build a modern user interface using React, TypeScript, and Vite.
     - Leverage HSL-tailored designs, subtle animations, and fully responsive grids for product listing, cart checkout,
@@ -186,3 +201,4 @@ src/main/java/cart/ai/
     - **Unit & Integration:** JUnit 5, Mockito, and Testcontainers to spin up isolated MongoDB/Kafka instances for
       integration testing.
     - **End-to-End (E2E) / Functional:** Write automated UI and API workflow tests using Playwright.
+
