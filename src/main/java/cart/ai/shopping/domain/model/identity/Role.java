@@ -5,8 +5,8 @@
 
 package cart.ai.shopping.domain.model.identity;
 
-import cart.ai.shopping.domain.model.identity.value.objects.Permission;
-import cart.ai.shopping.domain.model.identity.value.objects.RoleId;
+import cart.ai.shopping.domain.model.identity.vos.Permission;
+import cart.ai.shopping.domain.model.identity.vos.RoleId;
 import lombok.NonNull;
 
 import java.util.Set;

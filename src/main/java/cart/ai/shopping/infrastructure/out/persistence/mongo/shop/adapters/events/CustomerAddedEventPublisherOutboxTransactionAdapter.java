@@ -6,8 +6,8 @@
 package cart.ai.shopping.infrastructure.out.persistence.mongo.shop.adapters.events;
 
 import cart.ai.shopping.domain.model.shop.Customer;
-import cart.ai.shopping.domain.model.shop.value.objects.CustomerAddedEvent;
-import cart.ai.shopping.domain.ports.shop.events.CustomerAddedEventPublisherPort;
+import cart.ai.shopping.domain.model.shop.vos.CustomerAddedEvent;
+import cart.ai.shopping.domain.ports.shop.CustomerAddedEventPublisherPort;
 import cart.ai.shopping.infrastructure.out.persistence.mongo.common.documents.OutboxTransactionDocument;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

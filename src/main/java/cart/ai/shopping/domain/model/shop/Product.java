@@ -5,7 +5,7 @@
 
 package cart.ai.shopping.domain.model.shop;
 
-import cart.ai.shopping.domain.model.shop.value.objects.ProductId;
+import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import lombok.Data;
 import lombok.NonNull;
 

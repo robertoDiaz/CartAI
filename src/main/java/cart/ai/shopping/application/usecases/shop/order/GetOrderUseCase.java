@@ -6,10 +6,10 @@
 package cart.ai.shopping.application.usecases.shop.order;
 
 import cart.ai.shopping.application.annotations.UseCase;
+import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.shop.Order;
-import cart.ai.shopping.domain.model.shop.value.objects.OrderId;
-import cart.ai.shopping.domain.ports.shop.repositories.OrderRepositoryPort;
-import cart.ai.shopping.domain.result.Result;
+import cart.ai.shopping.domain.model.shop.vos.OrderId;
+import cart.ai.shopping.domain.ports.shop.OrderRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 

@@ -1,0 +1,51 @@
+/**
+ * Copyright (C) 2026 Roberto Díaz. All rights reserved.
+ * Licensed under the GNU General Public License v3.0. See LICENSE for details.
+ */
+
+package cart.ai.shopping.infrastructure.in.kafka.shop.events.listeners;
+
+import cart.ai.shopping.domain.model.shop.Cart;
+import cart.ai.shopping.domain.model.shop.Customer;
+import cart.ai.shopping.domain.model.shop.vos.CustomerAddedEvent;
+import cart.ai.shopping.domain.ports.shop.CartRepositoryPort;
+import cart.ai.shopping.domain.ports.shop.CustomerRepositoryPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+
+/**
+ * @author Roberto Díaz
+ */
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class CustomerAddedEventListener {
+
+    private final CustomerRepositoryPort customerRepositoryPort;
+    private final CartRepositoryPort cartRepositoryPort;
+
+
+    @KafkaListener(topics = "customers-topic", groupId = "email-notification")
+    public void notify(CustomerAddedEvent event) {
+
+        Customer customer = customerRepositoryPort.findByCustomerId(event.userId());
+
+        log.info("email sent to {}", customer.name());
+    }
+
+    @KafkaListener(topics = "customers-topic", groupId = "post-processor")
+    public void postProcess(CustomerAddedEvent event) {
+        Cart cart = cartRepositoryPort.find(event.userId());
+
+        if (cart != null) {
+            return;
+        }
+
+        cart = cartRepositoryPort.save(new Cart(event.userId(), new ArrayList<>()));
+        cartRepositoryPort.save(cart);
+    }
+}

@@ -6,10 +6,10 @@
 package cart.ai.shopping.infrastructure.out.persistence.mongo.shop.adapters;
 
 import cart.ai.shopping.domain.model.shop.Order;
-import cart.ai.shopping.domain.model.shop.value.objects.OrderId;
-import cart.ai.shopping.domain.ports.shop.repositories.OrderRepositoryPort;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.OrderMongoRepository;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.mapper.OrderMapper;
+import cart.ai.shopping.domain.model.shop.vos.OrderId;
+import cart.ai.shopping.domain.ports.shop.OrderRepositoryPort;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.mappers.OrderMapper;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.repositories.OrderMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

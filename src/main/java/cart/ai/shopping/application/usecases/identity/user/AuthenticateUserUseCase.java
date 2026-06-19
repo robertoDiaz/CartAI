@@ -6,12 +6,12 @@
 package cart.ai.shopping.application.usecases.identity.user;
 
 import cart.ai.shopping.application.annotations.UseCase;
-import cart.ai.shopping.application.usecases.identity.commands.AuthenticateUserCommand;
+import cart.ai.shopping.application.usecases.identity.user.commands.AuthenticateUserCommand;
+import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.User;
-import cart.ai.shopping.domain.model.identity.value.objects.Email;
-import cart.ai.shopping.domain.ports.identity.repositories.UserRepositoryPort;
-import cart.ai.shopping.domain.ports.security.PasswordEncoderPort;
-import cart.ai.shopping.domain.result.Result;
+import cart.ai.shopping.domain.model.identity.vos.Email;
+import cart.ai.shopping.domain.ports.identity.PasswordEncoderPort;
+import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 

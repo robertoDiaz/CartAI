@@ -6,13 +6,13 @@
 package cart.ai.shopping.application.usecases.identity.role;
 
 import cart.ai.shopping.application.annotations.UseCase;
-import cart.ai.shopping.application.usecases.identity.commands.CreateRoleCommand;
+import cart.ai.shopping.application.usecases.identity.role.commands.CreateRoleCommand;
+import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.Role;
-import cart.ai.shopping.domain.model.identity.value.objects.Permission;
-import cart.ai.shopping.domain.model.identity.value.objects.RoleId;
+import cart.ai.shopping.domain.model.identity.vos.Permission;
+import cart.ai.shopping.domain.model.identity.vos.RoleId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
-import cart.ai.shopping.domain.ports.identity.repositories.RoleRepositoryPort;
-import cart.ai.shopping.domain.result.Result;
+import cart.ai.shopping.domain.ports.identity.RoleRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 

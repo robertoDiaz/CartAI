@@ -6,11 +6,11 @@
 package cart.ai.shopping.infrastructure.out.persistence.mongo.identity.adapters;
 
 import cart.ai.shopping.domain.model.identity.Role;
-import cart.ai.shopping.domain.model.identity.value.objects.RoleId;
-import cart.ai.shopping.domain.model.identity.value.objects.UserId;
-import cart.ai.shopping.domain.ports.identity.repositories.RoleRepositoryPort;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.RoleMongoRepository;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.mapper.RoleMapper;
+import cart.ai.shopping.domain.model.identity.vos.RoleId;
+import cart.ai.shopping.domain.model.identity.vos.UserId;
+import cart.ai.shopping.domain.ports.identity.RoleRepositoryPort;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.mappers.RoleMapper;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.repositories.RoleMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -7,13 +7,13 @@ package cart.ai.shopping.infrastructure.out.persistence.mongo.identity.adapters;
 
 import cart.ai.shopping.domain.model.identity.Role;
 import cart.ai.shopping.domain.model.identity.User;
-import cart.ai.shopping.domain.model.identity.value.objects.Email;
-import cart.ai.shopping.domain.model.identity.value.objects.RoleId;
-import cart.ai.shopping.domain.model.identity.value.objects.UserId;
-import cart.ai.shopping.domain.ports.identity.repositories.UserRepositoryPort;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.UserMongoRepository;
+import cart.ai.shopping.domain.model.identity.vos.Email;
+import cart.ai.shopping.domain.model.identity.vos.RoleId;
+import cart.ai.shopping.domain.model.identity.vos.UserId;
+import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.documents.UserDocument;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.mapper.UserMapper;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.mappers.UserMapper;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.identity.repositories.UserMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

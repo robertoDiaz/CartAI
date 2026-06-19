@@ -5,11 +5,11 @@
 
 package cart.ai.shopping.infrastructure.out.persistence.mongo.shop.adapters;
 
-import cart.ai.shopping.domain.model.identity.value.objects.UserId;
+import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.shop.Cart;
-import cart.ai.shopping.domain.ports.shop.repositories.CartRepositoryPort;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.CartMongoRepository;
-import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.mapper.CartMapper;
+import cart.ai.shopping.domain.ports.shop.CartRepositoryPort;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.mappers.CartMapper;
+import cart.ai.shopping.infrastructure.out.persistence.mongo.shop.repositories.CartMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

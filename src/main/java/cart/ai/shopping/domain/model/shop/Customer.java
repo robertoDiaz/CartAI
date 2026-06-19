@@ -5,8 +5,8 @@
 
 package cart.ai.shopping.domain.model.shop;
 
-import cart.ai.shopping.domain.model.identity.value.objects.Email;
-import cart.ai.shopping.domain.model.identity.value.objects.UserId;
+import cart.ai.shopping.domain.model.identity.vos.Email;
+import cart.ai.shopping.domain.model.identity.vos.UserId;
 import lombok.NonNull;
 
 /**

@@ -5,10 +5,10 @@
 
 package cart.ai.shopping.domain.model.shop;
 
-import cart.ai.shopping.domain.model.identity.value.objects.UserId;
+import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.shop.constants.OrderStatus;
-import cart.ai.shopping.domain.model.shop.value.objects.OrderId;
-import cart.ai.shopping.domain.model.shop.value.objects.ShoppingItem;
+import cart.ai.shopping.domain.model.shop.vos.OrderId;
+import cart.ai.shopping.domain.model.shop.vos.ShoppingItem;
 import lombok.Data;
 import lombok.NonNull;
 
