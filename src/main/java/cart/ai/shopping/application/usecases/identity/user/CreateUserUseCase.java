@@ -14,7 +14,7 @@ import cart.ai.shopping.domain.model.identity.value.objects.UserId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.identity.events.UserAddedEventPublisherPort;
 import cart.ai.shopping.domain.ports.identity.repositories.UserRepositoryPort;
-import cart.ai.shopping.domain.ports.identity.services.PasswordEncoderPort;
+import cart.ai.shopping.domain.ports.security.PasswordEncoderPort;
 import cart.ai.shopping.domain.result.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
