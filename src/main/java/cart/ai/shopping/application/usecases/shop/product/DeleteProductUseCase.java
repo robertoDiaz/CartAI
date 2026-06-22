@@ -11,7 +11,8 @@ import cart.ai.shopping.domain.model.shop.Product;
 import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 
 /**
  * @author Roberto Díaz
@@ -28,7 +29,7 @@ public class DeleteProductUseCase {
         Product product = productRepositoryPort.find(productId);
 
         if (product == null) {
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
 
         productRepositoryPort.delete(productId);

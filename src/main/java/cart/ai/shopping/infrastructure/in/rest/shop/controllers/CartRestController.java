@@ -13,6 +13,7 @@ import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.shop.Cart;
 import cart.ai.shopping.domain.model.shop.vos.ProductId;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.AddShoppingItemToCartRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.RemoveShoppingItemToCartRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.shop.mappers.CartRestMapper;
@@ -42,7 +43,7 @@ public class CartRestController {
                 new UserId(request.customerId()), new ProductId(request.productId()));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Error.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Error.");
         }
 
         return ResponseEntity.ok(CartRestMapper.toResponse(result.getValue()));
@@ -55,7 +56,7 @@ public class CartRestController {
                 new UserId(request.customerId()), new ProductId(request.productId()));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Error.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Error.");
         }
 
         return ResponseEntity.ok(CartRestMapper.toResponse(result.getValue()));
@@ -67,7 +68,7 @@ public class CartRestController {
         Result<Cart> result = getCartUseCase.execute(new UserId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Not found.");
         }
 
         return ResponseEntity.ok(CartRestMapper.toResponse(result.getValue()));
@@ -79,7 +80,7 @@ public class CartRestController {
         Result<Cart> result = clearCartUseCase.execute(new UserId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Not found.");
         }
 
         return ResponseEntity.ok(CartRestMapper.toResponse(result.getValue()));

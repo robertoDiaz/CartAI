@@ -14,6 +14,7 @@ import cart.ai.shopping.application.usecases.storage.commands.UploadFileCommand;
 import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.storage.FileDownloadStream;
 import cart.ai.shopping.domain.model.storage.StoredFile;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.storage.dtos.StorageRestResponse;
 import cart.ai.shopping.infrastructure.security.services.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +75,7 @@ public class StorageRestController {
             Result<StoredFile> result = uploadFileUseCase.execute(command);
 
             if (result.hasError()) {
-                return ResponseEntity.status(result.getErrorCode()).body("Could not upload file.");
+                return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Could not upload file.");
             }
 
             StoredFile stored = result.getValue();
@@ -106,7 +107,7 @@ public class StorageRestController {
         Result<FileDownloadStream> result = downloadFileUseCase.execute(command);
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Access denied or file not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Access denied or file not found.");
         }
 
         FileDownloadStream downloadStream = result.getValue();
@@ -135,7 +136,7 @@ public class StorageRestController {
         Result<Void> result = deleteFileUseCase.execute(command);
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Access denied or file not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Access denied or file not found.");
         }
 
         return ResponseEntity.ok("File deleted successfully.");

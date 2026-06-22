@@ -17,7 +17,8 @@ import cart.ai.shopping.domain.ports.identity.PasswordEncoderPort;
 import cart.ai.shopping.domain.ports.identity.UserAddedEventPublisherPort;
 import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.CONFLICT;
 
 /**
  * @author Roberto Díaz
@@ -35,7 +36,7 @@ public class CreateUserUseCase {
         Email email = new Email(command.email());
 
         if (userRepositoryPort.findByEmail(email) != null) {
-            return Result.error(HttpStatus.CONFLICT.value());
+            return Result.error(CONFLICT);
         }
 
         UserId userId = new UserId(incrementIdGeneratorPort.generate(User.class));

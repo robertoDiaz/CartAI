@@ -13,7 +13,8 @@ import cart.ai.shopping.domain.model.identity.vos.Email;
 import cart.ai.shopping.domain.ports.identity.PasswordEncoderPort;
 import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.UNAUTHORIZED;
 
 /**
  * @author Roberto Díaz
@@ -29,7 +30,7 @@ public class AuthenticateUserUseCase {
         User user = userRepositoryPort.findByEmail(new Email(command.email()));
 
         if (user == null || !passwordEncoderPort.matches(command.password(), user.passwordHash())) {
-            return Result.error(HttpStatus.UNAUTHORIZED.value());
+            return Result.error(UNAUTHORIZED);
         }
 
         return Result.success(user);

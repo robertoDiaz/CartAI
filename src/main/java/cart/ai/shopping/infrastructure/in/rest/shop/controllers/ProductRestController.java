@@ -8,6 +8,7 @@ package cart.ai.shopping.infrastructure.in.rest.shop.controllers;
 import cart.ai.shopping.application.usecases.shop.product.*;
 import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.shop.Product;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.CreateProductRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.ProductRestResponse;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.UpdateProductRestRequest;
@@ -38,7 +39,7 @@ public class ProductRestController {
         Result<Product> result = createProductUseCase.execute(ProductRestMapper.toCreateProductCommand(request));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Error.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Error.");
         }
 
         return ResponseEntity.ok(ProductRestMapper.toResponse(result.getValue()));
@@ -49,7 +50,7 @@ public class ProductRestController {
         Result<Product> result = getProductUseCase.execute(id);
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Not found.");
         }
 
         return ResponseEntity.ok(ProductRestMapper.toResponse(result.getValue()));
@@ -60,7 +61,7 @@ public class ProductRestController {
         Result<Product> result = deleteProductUseCase.execute(id);
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Could not delete");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Could not delete");
         }
 
         return ResponseEntity.ok(ProductRestMapper.toResponse(result.getValue()));
@@ -81,7 +82,7 @@ public class ProductRestController {
         Result<Product> result = updateProductUseCase.execute(ProductRestMapper.toUpdateProductCommand(request));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Error.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Error.");
         }
 
         return ResponseEntity.ok(ProductRestMapper.toResponse(result.getValue()));

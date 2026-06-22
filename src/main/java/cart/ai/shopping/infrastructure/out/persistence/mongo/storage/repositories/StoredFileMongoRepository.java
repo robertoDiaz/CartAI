@@ -16,5 +16,4 @@ import org.springframework.stereotype.Repository;
 public interface StoredFileMongoRepository extends MongoRepository<StoredFileDocument, String> {
 
 
-
 }

@@ -16,8 +16,9 @@ import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.StoredFileEventPublisherPort;
 import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+
+import static cart.ai.shopping.domain.common.result.ResultError.*;
 
 /**
  * @author Roberto Díaz
@@ -33,18 +34,18 @@ public class DeleteFileUseCase {
     @Transactional
     public Result<Void> execute(DeleteFileCommand command) {
         if (command == null || command.id().isBlank()) {
-            return Result.error(HttpStatus.BAD_REQUEST.value());
+            return Result.error(BAD_REQUEST);
         }
 
         User requester = userRepositoryPort.findByUserId(new UserId(command.requesterUserId()));
         if (requester == null) {
-            return Result.error(HttpStatus.UNAUTHORIZED.value());
+            return Result.error(UNAUTHORIZED);
         }
 
         String id = command.id();
         StoredFile storedFile = storedFileRepositoryPort.findById(id);
         if (storedFile == null) {
-            return Result.error(HttpStatus.NOT_FOUND.value());
+            return Result.error(NOT_FOUND);
         }
 
         boolean isAdmin = requester.roles().stream()
@@ -52,14 +53,14 @@ public class DeleteFileUseCase {
 
         if (storedFile.ownerId() != null) {
             if (!storedFile.ownerId().equals(command.requesterUserId()) && !isAdmin) {
-                return Result.error(HttpStatus.FORBIDDEN.value());
+                return Result.error(FORBIDDEN);
             }
         } else {
             boolean hasWritePermission = requester.roles().stream()
                     .flatMap(role -> role.permissions().stream())
                     .anyMatch(permission -> permission.value().equals("WRITE_PRODUCTS"));
             if (!hasWritePermission && !isAdmin) {
-                return Result.error(HttpStatus.FORBIDDEN.value());
+                return Result.error(FORBIDDEN);
             }
         }
 
@@ -68,7 +69,7 @@ public class DeleteFileUseCase {
             storedFileEventPublisherPort.deletionConfirmed(new StoredFileEvent(storedFile.fileName()));
             return Result.success(null);
         } catch (Exception e) {
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
     }
 }

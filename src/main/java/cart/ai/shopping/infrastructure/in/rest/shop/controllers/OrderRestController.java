@@ -12,6 +12,7 @@ import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.shop.Order;
 import cart.ai.shopping.domain.model.shop.vos.OrderId;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.shop.mappers.OrderRestMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class OrderRestController {
         Result<Order> result = createOrderUseCase.execute(new UserId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Error.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Error.");
         }
 
         return ResponseEntity.ok(OrderRestMapper.toResponse(result.getValue()));
@@ -49,7 +50,7 @@ public class OrderRestController {
         Result<Order> result = getOrderUseCase.execute(new OrderId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Not found.");
         }
 
         return ResponseEntity.ok(OrderRestMapper.toResponse(result.getValue()));
@@ -61,7 +62,7 @@ public class OrderRestController {
         Result<Order> result = cancelOrderUseCase.execute(new OrderId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Not found.");
         }
 
         return ResponseEntity.ok(OrderRestMapper.toResponse(result.getValue()));

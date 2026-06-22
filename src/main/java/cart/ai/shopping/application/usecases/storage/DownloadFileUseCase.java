@@ -16,9 +16,10 @@ import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.StoragePort;
 import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 import java.io.InputStream;
+
+import static cart.ai.shopping.domain.common.result.ResultError.*;
 
 /**
  * @author Roberto Díaz
@@ -33,26 +34,26 @@ public class DownloadFileUseCase {
 
     public Result<FileDownloadStream> execute(DownloadFileCommand command) {
         if (command == null || command.id().isBlank()) {
-            return Result.error(HttpStatus.BAD_REQUEST.value());
+            return Result.error(BAD_REQUEST);
         }
 
         String id = command.id();
         StoredFile storedFile = storedFileRepositoryPort.findById(id);
         if (storedFile == null) {
-            return Result.error(HttpStatus.NOT_FOUND.value());
+            return Result.error(NOT_FOUND);
         }
 
         if (storedFile.ownerId() != null) {
             User requester = userRepositoryPort.findByUserId(new UserId(command.requesterUserId()));
             if (requester == null) {
-                return Result.error(HttpStatus.UNAUTHORIZED.value());
+                return Result.error(UNAUTHORIZED);
             }
 
             boolean isAdmin = requester.roles().stream()
                     .anyMatch(role -> role.name().equals("ADMIN"));
 
             if (!storedFile.ownerId().equals(command.requesterUserId()) && !isAdmin) {
-                return Result.error(HttpStatus.FORBIDDEN.value());
+                return Result.error(FORBIDDEN);
             }
         }
 
@@ -65,7 +66,7 @@ public class DownloadFileUseCase {
             );
             return Result.success(downloadStream);
         } catch (Exception e) {
-            return Result.error(HttpStatus.NOT_FOUND.value());
+            return Result.error(NOT_FOUND);
         }
     }
 }

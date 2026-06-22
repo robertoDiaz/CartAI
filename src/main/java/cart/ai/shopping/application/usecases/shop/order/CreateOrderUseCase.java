@@ -18,9 +18,10 @@ import cart.ai.shopping.domain.ports.shop.CartRepositoryPort;
 import cart.ai.shopping.domain.ports.shop.OrderPlacedEventPublisherPort;
 import cart.ai.shopping.domain.ports.shop.OrderRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 import java.util.Date;
+
+import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 
 /**
  * @author Roberto Díaz
@@ -38,7 +39,7 @@ public class CreateOrderUseCase {
         OrderId orderId = new OrderId(incrementIdGeneratorPort.generate(Order.class));
 
         if (orderRepositoryPort.find(orderId) != null) {
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
 
         Cart cart = cartRepositoryPort.find(userId);

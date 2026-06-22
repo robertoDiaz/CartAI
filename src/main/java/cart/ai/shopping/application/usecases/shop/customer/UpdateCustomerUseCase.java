@@ -13,7 +13,8 @@ import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.shop.Customer;
 import cart.ai.shopping.domain.ports.shop.CustomerRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.CONFLICT;
 
 /**
  * @author Roberto Díaz
@@ -30,7 +31,7 @@ public class UpdateCustomerUseCase {
         Email email = new Email(command.email());
 
         if (customerRepositoryPort.findByEmail(email) != null) {
-            return Result.error(HttpStatus.CONFLICT.value());
+            return Result.error(CONFLICT);
         }
 
         Customer customer = new Customer(userId, command.name(), email);

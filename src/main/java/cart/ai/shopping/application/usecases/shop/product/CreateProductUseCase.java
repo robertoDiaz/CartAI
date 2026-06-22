@@ -13,7 +13,8 @@ import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 
 /**
  * @author Roberto Díaz
@@ -29,7 +30,7 @@ public class CreateProductUseCase {
         ProductId productId = new ProductId(incrementIdGeneratorPort.generate(Product.class));
 
         if (productRepositoryPort.find(productId) != null) {
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
 
         Product product = new Product(

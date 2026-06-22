@@ -11,6 +11,7 @@ import cart.ai.shopping.application.usecases.identity.user.ListUserUseCase;
 import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.User;
 import cart.ai.shopping.domain.model.identity.vos.UserId;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.UserRestResponse;
 import cart.ai.shopping.infrastructure.in.rest.identity.mappers.UserRestMapper;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class UserRestController {
         Result<User> result = getUserUseCase.execute(new UserId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("User not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("User not found.");
         }
 
         return ResponseEntity.ok(UserRestMapper.toResponse(result.getValue()));
@@ -59,7 +60,7 @@ public class UserRestController {
         Result<User> result = deleteUserUseCase.execute(new UserId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Could not delete user.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Could not delete user.");
         }
 
         return ResponseEntity.ok(UserRestMapper.toResponse(result.getValue()));

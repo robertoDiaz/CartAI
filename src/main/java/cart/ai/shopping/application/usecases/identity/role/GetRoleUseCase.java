@@ -11,7 +11,8 @@ import cart.ai.shopping.domain.model.identity.Role;
 import cart.ai.shopping.domain.model.identity.vos.RoleId;
 import cart.ai.shopping.domain.ports.identity.RoleRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.NOT_FOUND;
 
 /**
  * @author Roberto Díaz
@@ -26,7 +27,7 @@ public class GetRoleUseCase {
         Role role = roleRepositoryPort.findByRoleId(roleId);
 
         if (role == null) {
-            return Result.error(HttpStatus.NOT_FOUND.value());
+            return Result.error(NOT_FOUND);
         }
 
         return Result.success(role);

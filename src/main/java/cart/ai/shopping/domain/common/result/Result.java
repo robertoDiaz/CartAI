@@ -13,24 +13,24 @@ import lombok.Getter;
 public class Result<T> {
 
     @Getter
-    private final Integer errorCode;
+    private final ResultError error;
     private final T value;
 
-    private Result(T value, Integer errorCode) {
+    private Result(T value, ResultError error) {
         this.value = value;
-        this.errorCode = errorCode;
+        this.error = error;
     }
 
     public static <T> Result<T> success(T value) {
         return new Result<>(value, null);
     }
 
-    public static <T> Result<T> error(Integer errorCode) {
-        return new Result<>(null, errorCode);
+    public static <T> Result<T> error(ResultError error) {
+        return new Result<>(null, error);
     }
 
     public boolean hasError() {
-        return (errorCode != null);
+        return (error != null);
     }
 
     public T getValue() {

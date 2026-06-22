@@ -19,8 +19,9 @@ import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+
+import static cart.ai.shopping.domain.common.result.ResultError.*;
 
 /**
  * @author Roberto Díaz
@@ -51,12 +52,12 @@ public class UploadFileUseCase {
     @Transactional
     public Result<StoredFile> execute(UploadFileCommand command) {
         if (command == null || command.inputStream() == null || command.originalFileName().isBlank()) {
-            return Result.error(HttpStatus.BAD_REQUEST.value());
+            return Result.error(BAD_REQUEST);
         }
 
         User requester = userRepositoryPort.findByUserId(new UserId(command.requesterUserId()));
         if (requester == null) {
-            return Result.error(HttpStatus.UNAUTHORIZED.value());
+            return Result.error(UNAUTHORIZED);
         }
 
         boolean isAdmin = requester.roles().stream()
@@ -64,14 +65,14 @@ public class UploadFileUseCase {
 
         if (command.ownerId() != null) {
             if (!command.ownerId().equals(command.requesterUserId()) && !isAdmin) {
-                return Result.error(HttpStatus.FORBIDDEN.value());
+                return Result.error(FORBIDDEN);
             }
         } else {
             boolean hasWritePermission = requester.roles().stream()
                     .flatMap(role -> role.permissions().stream())
                     .anyMatch(permission -> permission.value().equals("WRITE_PRODUCTS"));
             if (!hasWritePermission && !isAdmin) {
-                return Result.error(HttpStatus.FORBIDDEN.value());
+                return Result.error(FORBIDDEN);
             }
         }
 
@@ -82,7 +83,7 @@ public class UploadFileUseCase {
         try {
             result = tempStoragePort.uploadFile(command.inputStream(), uniqueFileName, command.contentType(), command.contentLength());
         } catch (Exception e) {
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
 
         StoredFile storedFile = new StoredFile(
@@ -107,7 +108,7 @@ public class UploadFileUseCase {
             } catch (Exception ex) {
                 // Ignore fallback failure, lifecycle policy will clean it up.
             }
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
     }
 }

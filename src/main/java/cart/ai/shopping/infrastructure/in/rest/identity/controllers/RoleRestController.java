@@ -12,6 +12,7 @@ import cart.ai.shopping.application.usecases.identity.role.ListRoleUseCase;
 import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.Role;
 import cart.ai.shopping.domain.model.identity.vos.RoleId;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.CreateRoleRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.RoleRestResponse;
 import cart.ai.shopping.infrastructure.in.rest.identity.mappers.RoleRestMapper;
@@ -42,7 +43,7 @@ public class RoleRestController {
         Result<Role> result = createRoleUseCase.execute(RoleRestMapper.toCreateRoleCommand(request));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Could not create role.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Could not create role.");
         }
 
         return ResponseEntity.ok(RoleRestMapper.toResponse(result.getValue()));
@@ -64,7 +65,7 @@ public class RoleRestController {
         Result<Role> result = getRoleUseCase.execute(new RoleId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Role not found.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Role not found.");
         }
 
         return ResponseEntity.ok(RoleRestMapper.toResponse(result.getValue()));
@@ -76,7 +77,7 @@ public class RoleRestController {
         Result<Role> result = deleteRoleUseCase.execute(new RoleId(id));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Could not delete role.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Could not delete role.");
         }
 
         return ResponseEntity.ok(RoleRestMapper.toResponse(result.getValue()));

@@ -14,6 +14,7 @@ import cart.ai.shopping.domain.model.identity.Role;
 import cart.ai.shopping.domain.model.identity.User;
 import cart.ai.shopping.domain.model.identity.vos.Permission;
 import cart.ai.shopping.domain.ports.identity.RoleRepositoryPort;
+import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMapper;
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.LoginRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.RegisterRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.identity.mappers.AuthRestMapper;
@@ -51,7 +52,7 @@ public class AuthRestController {
         Result<User> result = createUserUseCase.execute(AuthRestMapper.toCreateUserCommand(request, Set.of(customerRole)));
 
         if (result.hasError()) {
-            return ResponseEntity.status(result.getErrorCode()).body("Registration failed.");
+            return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Registration failed.");
         }
 
         return ResponseEntity.ok(AuthRestMapper.toResponse(

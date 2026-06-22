@@ -11,7 +11,8 @@ import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.shop.Cart;
 import cart.ai.shopping.domain.ports.shop.CartRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
+import static cart.ai.shopping.domain.common.result.ResultError.NOT_FOUND;
 
 /**
  * @author Roberto Díaz
@@ -26,7 +27,7 @@ public class GetCartUseCase {
         Cart cart = cartRepositoryPort.find(userId);
 
         if (cart == null) {
-            return Result.error(HttpStatus.NOT_FOUND.value());
+            return Result.error(NOT_FOUND);
         }
 
         return Result.success(cart);

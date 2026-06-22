@@ -14,9 +14,10 @@ import cart.ai.shopping.domain.model.identity.vos.RoleId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.identity.RoleRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 import java.util.stream.Collectors;
+
+import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 
 /**
  * @author Roberto Díaz
@@ -32,7 +33,7 @@ public class CreateRoleUseCase {
         RoleId roleId = new RoleId(incrementIdGeneratorPort.generate(Role.class));
 
         if (roleRepositoryPort.findByRoleId(roleId) != null) {
-            return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return Result.error(INTERNAL_ERROR);
         }
 
         Role role = new Role(
