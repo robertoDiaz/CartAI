@@ -78,7 +78,7 @@ public class UserAvatarRestController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload avatar");
             }
 
-            return ResponseEntity.ok(Map.of("avatarFileId", result.getValue().id()));
+            return ResponseEntity.ok(Map.of("avatarFileId", result.getValue().fileName()));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing file");
         }

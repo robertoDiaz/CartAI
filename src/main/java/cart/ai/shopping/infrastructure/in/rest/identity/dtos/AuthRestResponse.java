@@ -12,13 +12,17 @@ import java.util.List;
  */
 public record AuthRestResponse(
 
+        String userId,
+
         String token,
 
         String email,
 
         String name,
 
-        List<String> roles
+        List<String> roles,
+
+        String avatarFileId
 
 ) {
 }

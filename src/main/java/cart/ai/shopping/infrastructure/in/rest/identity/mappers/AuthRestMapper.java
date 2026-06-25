@@ -30,10 +30,12 @@ public class AuthRestMapper {
 
     public static AuthRestResponse toResponse(User user, String token) {
         return new AuthRestResponse(
+                user.userId().value(),
                 token,
                 user.email().value(),
                 user.name(),
-                user.roles().stream().map(Role::name).toList()
+                user.roles().stream().map(Role::name).toList(),
+                user.avatarFileId()
         );
     }
 }

@@ -15,17 +15,23 @@ import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.identity.vos.UserUpdatedEvent;
 import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.domain.ports.identity.UserUpdatedEventPublisherPort;
+import cart.ai.shopping.domain.ports.storage.StoragePort;
+import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Roberto Díaz
  */
 @UseCase
 @RequiredArgsConstructor
+@Slf4j
 public class UpdateUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
     private final UserUpdatedEventPublisherPort userUpdatedEventPublisherPort;
+    private final StoragePort storagePort;
+    private final TempStoragePort tempStoragePort;
 
     public Result<User> execute(UpdateUserCommand command) {
         User existingUser = userRepositoryPort.findByUserId(new UserId(command.id()));
@@ -41,13 +47,29 @@ public class UpdateUserUseCase {
             }
         }
 
+        String finalAvatarId = existingUser.avatarFileId();
+        String newAvatarFileId = command.avatarFileId();
+
+        if (newAvatarFileId != null && !newAvatarFileId.isBlank()
+                && !newAvatarFileId.equals(existingUser.avatarFileId())) {
+            try {
+                storagePort.promoteFile(newAvatarFileId, tempStoragePort.getBucketName());
+                finalAvatarId = newAvatarFileId;
+                if (existingUser.avatarFileId() != null) {
+                    storagePort.deleteFile(existingUser.avatarFileId());
+                }
+            } catch (Exception e) {
+                log.warn("Could not promote temp avatar {}: {}", newAvatarFileId, e.getMessage());
+            }
+        }
+
         User updatedUser = new User(
                 existingUser.userId(),
                 command.name(),
                 new Email(command.email()),
                 existingUser.passwordHash(),
                 command.roles(),
-                command.avatarFileId()
+                finalAvatarId
         );
 
         User savedUser = userRepositoryPort.save(updatedUser);
