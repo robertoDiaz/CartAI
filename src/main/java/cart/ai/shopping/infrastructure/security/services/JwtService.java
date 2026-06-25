@@ -53,6 +53,16 @@ public class JwtService {
         return (extractedUsername.equals(username)) && !isTokenExpired(token);
     }
 
+    public long getRemainingExpirationTimeMs(String token) {
+        try {
+            Date expiration = extractClaim(token, Claims::getExpiration);
+            long diff = expiration.getTime() - System.currentTimeMillis();
+            return Math.max(diff, 0);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
