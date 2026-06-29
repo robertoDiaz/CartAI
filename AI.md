@@ -54,3 +54,11 @@ Este diseño atómico prioriza la mantenibilidad, robustez y el aislamiento por 
 - **Testcontainers para MongoDB:** Reemplazar `Flapdoodle` embebido por contenedores Docker con MongoDB (configurado en
   modo Replica Set). Esto permitirá eliminar la propiedad `cartai.mongo.transaction.enabled=false` y ejecutar las
   transacciones multi-documento de Spring Data exactamente igual que en producción.
+
+### Soluciones Arquitectónicas Recientes (Backend)
+
+7. **Generación limpia de UUIDs y registro en BBDD para Avatares:**
+   - **Problema:** `UpdateUserAvatarUseCase` subía el archivo de imagen directamente a S3 utilizando el nombre del archivo original (por ejemplo, con espacios). Al no registrarlo en `StoredFileRepositoryPort`, las peticiones de descarga posteriores (`StorageRestController.getFile`) fallaban devolviendo un HTTP 404, y los problemas con los espacios en URLs rompían la visualización.
+   - **Solución:** Se ha refactorizado `UpdateUserAvatarUseCase` para que inyecte `IncrementIdGeneratorPort` y `StoredFileRepositoryPort`. Ahora, al subir un avatar, se genera automáticamente un identificador (UUID) limpio, se concatena su extensión original y se persisten los metadatos en MongoDB. Ahora, la carga pública funciona de forma impecable usando la URL interna oficial de ficheros.
+   - **Complementos de la solución:** Se ha relajado la obligatoriedad de la cabecera `Authorization` en `StorageRestController` (vía `required = false`) ya que las etiquetas `<img>` del frontend no la envían de manera nativa. También se ha ajustado la anotación `@GetMapping("/files/{id:.+}")` para evitar que Spring MVC trunque la extensión del archivo.
+   - **Limpieza de Código:** Se ha eliminado `UploadAvatarUseCase` (y `UploadAvatarCommand`) junto con el endpoint `POST /api/users/avatar` en `UserAvatarRestController`, ya que no se usaban ni formaban parte del flujo arquitectónico funcional (todo se hace mediante `PUT /api/users/avatar/{id}`).
