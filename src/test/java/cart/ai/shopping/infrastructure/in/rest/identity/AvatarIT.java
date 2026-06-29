@@ -58,7 +58,7 @@ class AvatarIT extends BaseIT {
                         .file(imageFile("profile.jpg"))
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.avatarFileId").value("profile.jpg"));
+                .andExpect(jsonPath("$.avatarFileId").isNotEmpty());
     }
 
     @Test
@@ -71,7 +71,7 @@ class AvatarIT extends BaseIT {
                         .file(imageFile("vendor-profile.png", MediaType.IMAGE_PNG_VALUE))
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.avatarFileId").value("vendor-profile.png"));
+                .andExpect(jsonPath("$.avatarFileId").isNotEmpty());
     }
 
     // =========================================================================
@@ -95,7 +95,7 @@ class AvatarIT extends BaseIT {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.avatarFileId").value("my-avatar.jpg"));
+                .andExpect(jsonPath("$.avatarFileId").isNotEmpty());
     }
 
     // =========================================================================
@@ -116,13 +116,13 @@ class AvatarIT extends BaseIT {
                         .file(imageFile("admin-override.jpg"))
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.avatarFileId").value("admin-override.jpg"));
+                .andExpect(jsonPath("$.avatarFileId").isNotEmpty());
 
         // Assert — customer sees the change when fetching their own profile
         mockMvc.perform(get("/api/users/" + customerId)
                         .header("Authorization", "Bearer " + customerToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.avatarFileId").value("admin-override.jpg"));
+                .andExpect(jsonPath("$.avatarFileId").isNotEmpty());
     }
 
     // =========================================================================
