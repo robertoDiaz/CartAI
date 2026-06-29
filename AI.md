@@ -48,3 +48,9 @@ Durante las últimas sesiones se ha definido un estándar estricto para los Test
    - Limpieza: Los tests que creen datos fuera del flujo de "semilla" (bootstrap) deben limpiarlos en el `@AfterEach`. Por ejemplo, eliminando las colecciones específicas con `cleanCollections(...)` o eliminando usuarios específicos de prueba con `removeTestUsers(...)`.
    
 Este diseño atómico prioriza la mantenibilidad, robustez y el aislamiento por encima de la reutilización de peticiones de login.
+
+### 🔮 Roadmap Futuro (Deuda Técnica)
+
+- **Testcontainers para MongoDB:** Reemplazar `Flapdoodle` embebido por contenedores Docker con MongoDB (configurado en
+  modo Replica Set). Esto permitirá eliminar la propiedad `cartai.mongo.transaction.enabled=false` y ejecutar las
+  transacciones multi-documento de Spring Data exactamente igual que en producción.

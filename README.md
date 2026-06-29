@@ -211,8 +211,8 @@ src/main/java/cart/ai/shopping/
     prevent bot-driven mass registration.
 - [ ] **Comprehensive Testing Suite:**
   - **Unit:** Mockito-based tests for all UseCases, covering business validations and Two-Phase Upload promotion logic.
-  - **Integration (E2E):** MockMvc-based `*FlowIT` tests for all 4 domains (`identity`, `storage`, `cart`, `order`),
-    using `@WithMockUser` to verify `200 OK` (authorized) and `403 Forbidden` (unauthorized) scenarios.
+  - **Integration (E2E):** MockMvc-based atomic tests for all domains (`identity`, `storage`, `cart`, `order`).
+  - **Testcontainers:** Replace embedded MongoDB (Flapdoodle) with Docker-based Testcontainers running MongoDB as a Replica Set to fully support and test Spring Data multi-document transactions.
 - [ ] **React Frontend Application:**
     - Build a modern user interface using React, TypeScript, and Vite.
   - Leverage HSL-tailored designs, subtle animations, and fully responsive grids for product listing, cart checkout, and
