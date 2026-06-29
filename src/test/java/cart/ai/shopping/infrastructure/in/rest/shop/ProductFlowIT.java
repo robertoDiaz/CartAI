@@ -9,6 +9,7 @@ import cart.ai.shopping.infrastructure.in.rest.BaseFlowIT;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.CreateProductRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.shop.dtos.UpdateProductRestRequest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProductFlowIT extends BaseFlowIT {
 
     private static String sharedProductId;
+
+    @BeforeAll
+    void setUp() throws Exception {
+        // Force fresh login for all roles used in this IT.
+        // Tokens from previous ITs (e.g. a blacklisted customer token from UserFlowIT) must not leak here.
+        refreshAllSessions();
+    }
 
     @AfterAll
     void tearDown() {

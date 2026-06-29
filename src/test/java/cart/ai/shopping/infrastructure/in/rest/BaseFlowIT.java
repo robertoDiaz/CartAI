@@ -129,6 +129,22 @@ public abstract class BaseFlowIT {
         customerUserId = null;
     }
 
+    /**
+     * Forces a fresh login for all three roles, discarding any previously cached tokens.
+     * <p>
+     * Call this from {@code @BeforeAll} in any IT class that may run after
+     * {@link cart.ai.shopping.infrastructure.in.rest.identity.UserFlowIT}, whose logout test
+     * blacklists the customer token, making it invalid for subsequent classes.
+     */
+    protected void refreshAllSessions() throws Exception {
+        adminToken = null;
+        vendorToken = null;
+        customerToken = null;
+        ensureAdminLoggedIn();
+        ensureVendorLoggedIn();
+        ensureCustomerLoggedIn();
+    }
+
     /** Performs a real login and returns the parsed JSON response. */
     protected JsonNode login(String email, String password) throws Exception {
         LoginRestRequest req = new LoginRestRequest(email, password);
