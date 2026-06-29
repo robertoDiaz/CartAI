@@ -5,15 +5,15 @@
 
 package cart.ai.shopping;
 
-import cart.ai.shopping.infrastructure.in.rest.BaseFlowIT;
+import cart.ai.shopping.infrastructure.in.rest.BaseIT;
 import org.junit.jupiter.api.Test;
 
 /**
- * Smoke test that verifies the Spring application context loads successfully.
+ * Smoke test — verifies the Spring application context loads successfully.
  *
  * @author Roberto Díaz
  */
-class CartAIApplicationTests extends BaseFlowIT {
+class CartAIApplicationTests extends BaseIT {
 
     @Test
     void contextLoads() {
