@@ -5,8 +5,6 @@
 
 package cart.ai.shopping.infrastructure.in.rest.shop.dtos;
 
-import cart.ai.shopping.domain.model.shop.vos.ProductId;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -14,7 +12,7 @@ import java.util.List;
  * @author Roberto Díaz
  */
 public record ProductRestResponse(
-        ProductId id,
+        String id,
         String name,
         String description,
         BigDecimal price,

@@ -49,7 +49,7 @@ class CartIT extends BaseIT {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        return objectMapper.readTree(response).get("id").get("value").asText();
+        return objectMapper.readTree(response).get("id").asText();
     }
 
     @Test

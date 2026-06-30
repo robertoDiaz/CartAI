@@ -29,6 +29,6 @@ public class ProductRestMapper {
 
     public static ProductRestResponse toResponse(Product product) {
         return new ProductRestResponse(
-                product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getStock(), product.getImageFileIds());
+                product.getId().value(), product.getName(), product.getDescription(), product.getPrice(), product.getStock(), product.getImageFileIds());
     }
 }
