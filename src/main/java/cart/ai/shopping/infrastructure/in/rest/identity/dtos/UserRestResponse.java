@@ -15,6 +15,9 @@ public record UserRestResponse(
         String name,
         String email,
         List<String> roles,
-        String avatarFileId
+        String avatarFileId,
+        String phone,
+        String taxId,
+        String preferredLanguage
 ) {
 }

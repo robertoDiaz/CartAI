@@ -11,8 +11,10 @@ import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.identity.User;
 import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.storage.StoredFile;
+import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.StoragePort;
+import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +31,14 @@ public class UpdateUserAvatarUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
     private final StoragePort storagePort;
+    private final StoredFileRepositoryPort storedFileRepositoryPort;
+    private final IncrementIdGeneratorPort idGeneratorPort;
+
+    private String getExtension(String originalFileName) {
+        if (originalFileName == null) return "";
+        int dotIndex = originalFileName.lastIndexOf('.');
+        return dotIndex > 0 ? originalFileName.substring(dotIndex) : "";
+    }
 
     public Result<User> execute(UpdateUserAvatarCommand command) {
         User user = userRepositoryPort.findByUserId(new UserId(command.userId()));
@@ -39,12 +49,25 @@ public class UpdateUserAvatarUseCase {
         String oldAvatarId = user.avatarFileId();
 
         try {
+            String id = idGeneratorPort.generate(StoredFile.class);
+            String uniqueFileName = id + getExtension(command.fileName());
+
             StoredFile newAvatar = storagePort.uploadFile(
                     command.inputStream(),
-                    command.fileName(),
+                    uniqueFileName,
                     command.contentType(),
                     command.contentLength()
             );
+
+            StoredFile storedFile = new StoredFile(
+                    id,
+                    uniqueFileName,
+                    command.fileName(),
+                    newAvatar.fileUrl(),
+                    command.contentType(),
+                    null // Public file
+            );
+            storedFileRepositoryPort.save(storedFile);
 
             if (oldAvatarId != null && !oldAvatarId.isBlank()) {
                 try {
@@ -60,7 +83,7 @@ public class UpdateUserAvatarUseCase {
                     user.email(),
                     user.passwordHash(),
                     user.roles(),
-                    newAvatar.fileName()
+                    id
             );
 
             return Result.success(userRepositoryPort.save(updatedUser));

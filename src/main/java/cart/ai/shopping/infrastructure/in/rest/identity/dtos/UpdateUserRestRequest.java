@@ -5,7 +5,6 @@
 
 package cart.ai.shopping.infrastructure.in.rest.identity.dtos;
 
-import cart.ai.shopping.domain.model.identity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,13 +21,19 @@ public record UpdateUserRestRequest(
         @NotBlank(message = "Name is mandatory")
         String name,
 
-        @Email
-        @NotBlank(message = "Email is mandatory")
-        String email,
-
         @NotNull
-        Set<Role> roles,
+        Set<String> roles,
 
-        String avatarFileId
+        String avatarFileId,
+
+        String oldPassword,
+
+        String newPassword,
+        
+        String phone,
+        
+        String taxId,
+        
+        String preferredLanguage
 ) {
 }

@@ -32,5 +32,11 @@ public class UserDocument {
     private final Set<String> roleIds;
 
     private final String avatarFileId;
+    
+    private final String phone;
+    
+    private final String taxId;
+    
+    private final String preferredLanguage;
 
 }

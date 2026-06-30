@@ -29,6 +29,9 @@ public class UserMapper {
                         .map(role -> role.id().value())
                         .collect(Collectors.toSet()))
                 .avatarFileId(user.avatarFileId())
+                .phone(user.phone())
+                .taxId(user.taxId())
+                .preferredLanguage(user.preferredLanguage())
                 .build();
     }
 
@@ -39,7 +42,10 @@ public class UserMapper {
                 new Email(document.getEmail()),
                 document.getPasswordHash(),
                 roles,
-                document.getAvatarFileId()
+                document.getAvatarFileId(),
+                document.getPhone(),
+                document.getTaxId(),
+                document.getPreferredLanguage()
         );
     }
 }

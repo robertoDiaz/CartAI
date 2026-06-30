@@ -15,9 +15,13 @@ import java.util.Set;
  * @author Roberto Díaz
  */
 public record User(@NonNull UserId userId, @NonNull String name, @NonNull Email email, @NonNull String passwordHash,
-                   @NonNull Set<Role> roles, String avatarFileId) {
+                   @NonNull Set<Role> roles, String avatarFileId, String phone, String taxId, String preferredLanguage) {
 
     public User(@NonNull UserId userId, @NonNull String name, @NonNull Email email, @NonNull String passwordHash, @NonNull Set<Role> roles) {
-        this(userId, name, email, passwordHash, roles, null);
+        this(userId, name, email, passwordHash, roles, null, null, null, null);
+    }
+    
+    public User(@NonNull UserId userId, @NonNull String name, @NonNull Email email, @NonNull String passwordHash, @NonNull Set<Role> roles, String avatarFileId) {
+        this(userId, name, email, passwordHash, roles, avatarFileId, null, null, null);
     }
 }

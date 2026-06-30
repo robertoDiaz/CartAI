@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Date;
 
+import static cart.ai.shopping.domain.common.result.ResultError.BAD_REQUEST;
 import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 
 /**
@@ -43,6 +44,9 @@ public class CreateOrderUseCase {
         }
 
         Cart cart = cartRepositoryPort.find(userId);
+        if (cart == null || cart.getShoppingItems().isEmpty()) {
+            return Result.error(BAD_REQUEST);
+        }
 
         Order order = orderRepositoryPort.save(new Order(
                 orderId,

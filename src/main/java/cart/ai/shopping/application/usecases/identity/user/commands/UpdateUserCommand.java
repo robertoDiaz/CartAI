@@ -21,12 +21,19 @@ public record UpdateUserCommand(
         @NotBlank(message = "Name is mandatory")
         String name,
 
-        @NotBlank(message = "Email is mandatory")
-        String email,
-
         @NotNull
         Set<Role> roles,
 
-        String avatarFileId
+        String avatarFileId,
+
+        String oldPassword,
+
+        String newPassword,
+        
+        String phone,
+        
+        String taxId,
+        
+        String preferredLanguage
 ) {
 }

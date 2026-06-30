@@ -76,7 +76,7 @@ public class UserRestController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('READ_USERS') or principal.username == #id")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('READ_USERS') or principal == #id")
     public ResponseEntity<?> getUserById(@PathVariable String id) {
         Result<User> result = getUserUseCase.execute(new UserId(id));
 
@@ -100,13 +100,21 @@ public class UserRestController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('WRITE_USERS') or principal.username == #id")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('WRITE_USERS') or principal == #id")
     public ResponseEntity<?> updateUser(@PathVariable String id, @Valid @RequestBody UpdateUserRestRequest request) {
         if (!id.equals(request.id())) {
             return ResponseEntity.badRequest().body("ID mismatch");
         }
 
-        Result<User> result = updateUserUseCase.execute(UserRestMapper.toUpdateUserCommand(request));
+        Set<Role> roles = request.roles().stream()
+                .map(roleRepositoryPort::findByName)
+                .collect(Collectors.toSet());
+
+        if (roles.contains(null)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("One or more roles do not exist.");
+        }
+
+        Result<User> result = updateUserUseCase.execute(UserRestMapper.toUpdateUserCommand(request, roles));
 
         if (result.hasError()) {
             return ResponseEntity.status(ResultErrorHttpStatusMapper.toHttpStatus(result.getError())).body("Could not update user.");

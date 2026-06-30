@@ -37,7 +37,7 @@ public class CartRestController {
     private final RemoveShoppingItemFromCartUseCase removeShoppingItemFromCartUseCase;
 
     @PatchMapping("/add")
-    @PreAuthorize("hasAuthority('WRITE_CARTS')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('WRITE_CARTS') or principal == #request.customerId()")
     public ResponseEntity<?> addShoppingItemToCart(@RequestBody @Valid AddShoppingItemToCartRestRequest request) {
         Result<Cart> result = addShoppingItemToCartUseCase.execute(
                 new UserId(request.customerId()), new ProductId(request.productId()));
@@ -50,7 +50,7 @@ public class CartRestController {
     }
 
     @PatchMapping("/remove")
-    @PreAuthorize("hasAuthority('WRITE_CARTS')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('WRITE_CARTS') or principal == #request.customerId()")
     public ResponseEntity<?> removeItemFromCart(@RequestBody @Valid RemoveShoppingItemToCartRestRequest request) {
         Result<Cart> result = removeShoppingItemFromCartUseCase.execute(
                 new UserId(request.customerId()), new ProductId(request.productId()));
@@ -63,7 +63,7 @@ public class CartRestController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('READ_CARTS')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('READ_CARTS') or principal == #id")
     public ResponseEntity<?> getCartById(@PathVariable String id) {
         Result<Cart> result = getCartUseCase.execute(new UserId(id));
 
@@ -75,7 +75,7 @@ public class CartRestController {
     }
 
     @PatchMapping("/clear/{id}")
-    @PreAuthorize("hasAuthority('WRITE_CARTS')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('WRITE_CARTS') or principal == #id")
     public ResponseEntity<?> clearCart(@PathVariable String id) {
         Result<Cart> result = clearCartUseCase.execute(new UserId(id));
 
@@ -85,6 +85,4 @@ public class CartRestController {
 
         return ResponseEntity.ok(CartRestMapper.toResponse(result.getValue()));
     }
-
-
 }

@@ -49,6 +49,16 @@ services:
     volumes:
       - minio_data:/data
 
+#  # Redis (Optional - for distributed token blacklist)
+#  redis:
+#    image: redis:alpine
+#    container_name: cartai-redis
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - redis_data:/data
+
 volumes:
   mongo_data:
   minio_data:
+#  redis_data:

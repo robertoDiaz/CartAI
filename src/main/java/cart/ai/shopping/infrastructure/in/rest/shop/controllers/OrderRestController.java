@@ -33,7 +33,7 @@ public class OrderRestController {
 
 
     @PostMapping("/{id}")
-    @PreAuthorize("hasAuthority('WRITE_ORDERS')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('WRITE_ORDERS') or principal == #id")
     public ResponseEntity<?> createOrder(@PathVariable String id) {
         Result<Order> result = createOrderUseCase.execute(new UserId(id));
 
@@ -45,7 +45,7 @@ public class OrderRestController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('READ_ORDERS')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getOrderById(@PathVariable String id) {
         Result<Order> result = getOrderUseCase.execute(new OrderId(id));
 
@@ -57,7 +57,7 @@ public class OrderRestController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('WRITE_ORDERS')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> cancelOrder(@PathVariable String id) {
         Result<Order> result = cancelOrderUseCase.execute(new OrderId(id));
 

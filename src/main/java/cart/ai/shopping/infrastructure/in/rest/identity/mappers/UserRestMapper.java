@@ -16,13 +16,17 @@ import cart.ai.shopping.infrastructure.in.rest.identity.dtos.UserRestResponse;
  */
 public class UserRestMapper {
 
-    public static UpdateUserCommand toUpdateUserCommand(UpdateUserRestRequest request) {
+    public static UpdateUserCommand toUpdateUserCommand(UpdateUserRestRequest request, java.util.Set<Role> roles) {
         return new UpdateUserCommand(
                 request.id(),
                 request.name(),
-                request.email(),
-                request.roles(),
-                request.avatarFileId()
+                roles,
+                request.avatarFileId(),
+                request.oldPassword(),
+                request.newPassword(),
+                request.phone(),
+                request.taxId(),
+                request.preferredLanguage()
         );
     }
 
@@ -35,7 +39,10 @@ public class UserRestMapper {
                 user.name(),
                 user.email().value(),
                 user.roles().stream().map(Role::name).toList(),
-                user.avatarFileId()
+                user.avatarFileId(),
+                user.phone(),
+                user.taxId(),
+                user.preferredLanguage()
         );
     }
 }

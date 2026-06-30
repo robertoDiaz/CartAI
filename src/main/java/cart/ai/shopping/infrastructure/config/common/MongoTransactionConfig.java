@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.MongoTransactionManager;
  * @author Roberto Díaz
  */
 @Configuration
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "cartai.mongo.transaction.enabled", havingValue = "true", matchIfMissing = true)
 public class MongoTransactionConfig {
 
     @Bean

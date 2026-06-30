@@ -5,17 +5,22 @@
 
 package cart.ai.shopping;
 
+import cart.ai.shopping.infrastructure.in.rest.BaseIT;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Smoke test — verifies the Spring application context loads successfully.
+ *
  * @author Roberto Díaz
  */
-@SpringBootTest
-class CartAIApplicationTests {
+class CartAIApplicationTests extends BaseIT {
 
     @Test
     void contextLoads() {
+        assertThat(mockMvc).isNotNull();
+        assertThat(objectMapper).isNotNull();
+        assertThat(mongoTemplate).isNotNull();
     }
-
 }

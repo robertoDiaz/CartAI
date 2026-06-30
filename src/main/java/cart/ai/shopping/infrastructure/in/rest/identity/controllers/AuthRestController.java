@@ -15,7 +15,10 @@ import cart.ai.shopping.infrastructure.in.rest.common.ResultErrorHttpStatusMappe
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.LoginRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.identity.dtos.RegisterRestRequest;
 import cart.ai.shopping.infrastructure.in.rest.identity.mappers.AuthRestMapper;
+import cart.ai.shopping.infrastructure.security.services.JwtService;
+import cart.ai.shopping.infrastructure.security.services.TokenBlacklistService;
 import cart.ai.shopping.infrastructure.security.services.UserAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,6 +42,8 @@ public class AuthRestController {
     private final AuthenticateUserUseCase authenticateUserUseCase;
     private final RoleRepositoryPort roleRepositoryPort;
     private final UserAuthService userAuthService;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRestRequest request) {
@@ -74,7 +79,16 @@ public class AuthRestController {
         ));
     }
 
-
-
-
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            long remainingTimeMs = jwtService.getRemainingExpirationTimeMs(token);
+            if (remainingTimeMs > 0) {
+                tokenBlacklistService.blacklistToken(token, remainingTimeMs);
+            }
+        }
+        return ResponseEntity.ok("Successfully logged out.");
+    }
 }

@@ -42,6 +42,7 @@ public class JwtService {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(username)
+                .id(java.util.UUID.randomUUID().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSignInKey())
@@ -51,6 +52,16 @@ public class JwtService {
     public boolean isTokenValid(String token, String username) {
         final String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(username)) && !isTokenExpired(token);
+    }
+
+    public long getRemainingExpirationTimeMs(String token) {
+        try {
+            Date expiration = extractClaim(token, Claims::getExpiration);
+            long diff = expiration.getTime() - System.currentTimeMillis();
+            return Math.max(diff, 0);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private boolean isTokenExpired(String token) {

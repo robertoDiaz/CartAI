@@ -26,9 +26,9 @@ public class CartMapper {
     public static Cart toDomain(CartDocument cartDocument) {
         return new Cart(
                 new UserId(cartDocument.getCustomerId()),
-                cartDocument.getShoppingItems().stream()
-                        .map(ShoppingItemMapper::toDomain)
-                        .toList()
+                cartDocument.getShoppingItems() != null
+                        ? cartDocument.getShoppingItems().stream().map(ShoppingItemMapper::toDomain).collect(java.util.stream.Collectors.toList())
+                        : new java.util.ArrayList<>()
         );
     }
 }

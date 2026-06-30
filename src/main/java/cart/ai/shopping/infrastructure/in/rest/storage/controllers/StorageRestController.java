@@ -85,11 +85,11 @@ public class StorageRestController {
         }
     }
 
-    @GetMapping("/files/{id}")
+    @GetMapping("/files/{id:.+}")
     public ResponseEntity<?> getFile(
             @PathVariable String id,
-            @RequestHeader("Authorization") String authHeader) {
-        String userId = userAuthService.getUserId(authHeader);
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String userId = authHeader != null ? userAuthService.getUserId(authHeader) : null;
 
         DownloadFileCommand command = new DownloadFileCommand(
                 id,
