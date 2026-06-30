@@ -48,7 +48,6 @@ public class ProductRestController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'VENDOR', 'ADMIN')")
     public ResponseEntity<?> getProductById(@PathVariable String id) {
         Result<Product> result = getProductUseCase.execute(id);
 
@@ -72,7 +71,6 @@ public class ProductRestController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'VENDOR', 'ADMIN')")
     public ResponseEntity<?> getProducts() {
         Result<List<Product>> result = listProductUseCase.execute();
 

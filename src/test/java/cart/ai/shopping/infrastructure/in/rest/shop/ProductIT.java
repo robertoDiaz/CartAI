@@ -105,6 +105,16 @@ class ProductIT extends BaseIT {
     }
 
     @Test
+    void anonymousUserCanGetProduct() throws Exception {
+        String productId = createProductAsVendor("Headphones");
+
+        mockMvc.perform(get("/api/products/" + productId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Headphones"));
+    }
+
+
+    @Test
     void getNonExistentProductReturns404() throws Exception {
         var auth = login(CUSTOMER_EMAIL, CUSTOMER_PASS);
         mockMvc.perform(get("/api/products/non-existent-id")
@@ -126,6 +136,16 @@ class ProductIT extends BaseIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").exists());
     }
+
+    @Test
+    void anonymousUserCanListProducts() throws Exception {
+        createProductAsVendor("Keyboard");
+
+        mockMvc.perform(get("/api/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").exists());
+    }
+
 
     // =========================================================================
     // PUT /api/products — update
