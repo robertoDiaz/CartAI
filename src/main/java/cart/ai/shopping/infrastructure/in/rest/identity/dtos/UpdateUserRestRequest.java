@@ -21,13 +21,13 @@ public record UpdateUserRestRequest(
         @NotBlank(message = "Name is mandatory")
         String name,
 
-        @Email
-        @NotBlank(message = "Email is mandatory")
-        String email,
-
         @NotNull
         Set<String> roles,
 
-        String avatarFileId
+        String avatarFileId,
+
+        String oldPassword,
+
+        String newPassword
 ) {
 }

@@ -20,9 +20,10 @@ public class UserRestMapper {
         return new UpdateUserCommand(
                 request.id(),
                 request.name(),
-                request.email(),
                 roles,
-                request.avatarFileId()
+                request.avatarFileId(),
+                request.oldPassword(),
+                request.newPassword()
         );
     }
 

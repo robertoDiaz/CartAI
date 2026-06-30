@@ -40,20 +40,7 @@ public class DownloadFileUseCase {
         String id = command.id();
         StoredFile storedFile = storedFileRepositoryPort.findById(id);
         if (storedFile == null) {
-            // Fallback for avatars that are not stored in the database
-            try {
-                InputStream inputStream = storagePort.downloadFile(id);
-
-
-                FileDownloadStream downloadStream = new FileDownloadStream(
-                        inputStream,
-                        id,
-                        "image/jpeg" // Guessing content type or letting browser infer
-                );
-                return Result.success(downloadStream);
-            } catch (Exception e) {
-                return Result.error(NOT_FOUND);
-            }
+            return Result.error(NOT_FOUND);
         }
 
         if (storedFile.ownerId() != null) {

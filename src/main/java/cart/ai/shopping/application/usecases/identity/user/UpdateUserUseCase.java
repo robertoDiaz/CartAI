@@ -13,6 +13,7 @@ import cart.ai.shopping.domain.model.identity.User;
 import cart.ai.shopping.domain.model.identity.vos.Email;
 import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.identity.vos.UserUpdatedEvent;
+import cart.ai.shopping.domain.ports.identity.PasswordEncoderPort;
 import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.domain.ports.identity.UserUpdatedEventPublisherPort;
 import cart.ai.shopping.domain.ports.storage.StoragePort;
@@ -30,6 +31,7 @@ public class UpdateUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
     private final UserUpdatedEventPublisherPort userUpdatedEventPublisherPort;
+    private final PasswordEncoderPort passwordEncoderPort;
     private final StoragePort storagePort;
     private final TempStoragePort tempStoragePort;
 
@@ -40,12 +42,7 @@ public class UpdateUserUseCase {
             return Result.error(ResultError.NOT_FOUND);
         }
 
-        if (!existingUser.email().value().equals(command.email())) {
-            User byEmail = userRepositoryPort.findByEmail(new Email(command.email()));
-            if (byEmail != null) {
-                return Result.error(ResultError.CONFLICT);
-            }
-        }
+
 
         String finalAvatarId = existingUser.avatarFileId();
         String newAvatarFileId = command.avatarFileId();
@@ -63,11 +60,22 @@ public class UpdateUserUseCase {
             }
         }
 
+        String finalPasswordHash = existingUser.passwordHash();
+        if (command.newPassword() != null && !command.newPassword().isBlank()) {
+            if (command.oldPassword() == null || command.oldPassword().isBlank()) {
+                return Result.error(ResultError.BAD_REQUEST);
+            }
+            if (!passwordEncoderPort.matches(command.oldPassword(), existingUser.passwordHash())) {
+                return Result.error(ResultError.UNAUTHORIZED);
+            }
+            finalPasswordHash = passwordEncoderPort.encode(command.newPassword());
+        }
+
         User updatedUser = new User(
                 existingUser.userId(),
                 command.name(),
-                new Email(command.email()),
-                existingUser.passwordHash(),
+                existingUser.email(),
+                finalPasswordHash,
                 command.roles(),
                 finalAvatarId
         );
