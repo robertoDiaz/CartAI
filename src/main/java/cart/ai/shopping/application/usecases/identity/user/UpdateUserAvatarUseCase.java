@@ -83,7 +83,7 @@ public class UpdateUserAvatarUseCase {
                     user.email(),
                     user.passwordHash(),
                     user.roles(),
-                    newAvatar.fileName()
+                    id
             );
 
             return Result.success(userRepositoryPort.save(updatedUser));
