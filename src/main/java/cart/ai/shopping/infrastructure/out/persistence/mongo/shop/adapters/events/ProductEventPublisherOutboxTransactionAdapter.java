@@ -12,8 +12,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ProductEventPublisherOutboxTransactionAdapter implements ProductEventPublisherPort {
 
     private static final String PRODUCT_CREATED_TOPIC = "product-created-topic";
@@ -45,6 +48,7 @@ public class ProductEventPublisherOutboxTransactionAdapter implements ProductEve
 
             mongoTemplate.save(outboxTransactionDocument);
         } catch (Exception exception) {
+            log.error("Failed to save outbox event for topic {}: {}", topic, exception.getMessage(), exception);
             throw new RuntimeException(exception);
         }
     }

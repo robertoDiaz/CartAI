@@ -56,7 +56,7 @@ public class ProductEventStorageListener {
                 log.debug("Promoted physical file successfully for product update: {}", storedFile.fileName());
             }
         } catch (Exception e) {
-            log.error("Could not promote file {} for product update: {}", fileId, e.getMessage());
+            log.error("Could not promote file {} for product update: {}", fileId, e.getMessage(), e);
         }
     }
 
@@ -68,7 +68,7 @@ public class ProductEventStorageListener {
                 log.debug("Deleted physical file successfully after product update: {}", storedFile.fileName());
             }
         } catch (Exception e) {
-            log.error("Could not delete file {} after product update: {}", fileId, e.getMessage());
+            log.error("Could not delete file {} after product update: {}", fileId, e.getMessage(), e);
         }
     }
 }

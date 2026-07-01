@@ -40,3 +40,6 @@ out/
 .commit_msg
 update_linear.sh
 *.cjs
+
+# Antigravity & Agent Customizations
+.agents/
