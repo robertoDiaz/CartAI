@@ -40,6 +40,11 @@ out/
 .commit_msg
 update_linear.sh
 *.cjs
+TestApp.java
+test-promotion.sh
+
+# Spring IDE metadata (autogenerado)
+src/main/resources/META-INF/additional-spring-configuration-metadata.json
 
 # Antigravity & Agent Customizations
 .agents/
