@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Temporales de IA
+.commit_msg
+update_linear.sh
+*.cjs
