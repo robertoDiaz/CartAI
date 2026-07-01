@@ -27,3 +27,6 @@ cartai:
         name: ${VENDOR_NAME:vendor}
         email: ${VENDOR_EMAIL:vendor@cartai.com}
         password: ${VENDOR_PASSWORD:vendor}
+  mongo:
+    transaction:
+      enabled: false

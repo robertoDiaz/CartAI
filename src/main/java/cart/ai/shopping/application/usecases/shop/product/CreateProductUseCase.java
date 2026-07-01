@@ -13,6 +13,7 @@ import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.StoragePort;
+import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class CreateProductUseCase {
     private final IncrementIdGeneratorPort incrementIdGeneratorPort;
     private final StoragePort storagePort;
     private final TempStoragePort tempStoragePort;
+    private final StoredFileRepositoryPort storedFileRepositoryPort;
 
     public Result<Product> execute(CreateProductCommand command) {
         ProductId productId = new ProductId(incrementIdGeneratorPort.generate(Product.class));
@@ -42,7 +44,10 @@ public class CreateProductUseCase {
         if (command.imageFileIds() != null) {
             for (String fileId : command.imageFileIds()) {
                 try {
-                    storagePort.promoteFile(fileId, tempStoragePort.getBucketName());
+                    cart.ai.shopping.domain.model.storage.StoredFile storedFile = storedFileRepositoryPort.findById(fileId);
+                    if (storedFile != null) {
+                        storagePort.promoteFile(storedFile.fileName(), tempStoragePort.getBucketName());
+                    }
                 } catch (Exception e) {
                     log.warn("Could not promote temp product image {}: {}", fileId, e.getMessage());
                 }

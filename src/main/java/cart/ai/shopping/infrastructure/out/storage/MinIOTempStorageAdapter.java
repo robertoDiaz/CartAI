@@ -26,7 +26,7 @@ public class MinIOTempStorageAdapter extends BaseStorageAdapter implements TempS
     public MinIOTempStorageAdapter(
             S3Client s3Client,
             @Value("${minio.temp-bucket-name}") String bucketName,
-            @Value("${minio.bucket-name}") String urlBucketName,
+            @Value("${minio.temp-bucket-name}") String urlBucketName,
             @Value("${minio.endpoint}") String minioEndpoint) {
 
         super(s3Client, bucketName, urlBucketName, minioEndpoint);
@@ -46,6 +46,28 @@ public class MinIOTempStorageAdapter extends BaseStorageAdapter implements TempS
             s3Client.createBucket(createBucketRequest);
         } catch (Exception e) {
             log.error("Error checking or creating temp bucket in MinIO: " + bucketName, e);
+        }
+
+        try {
+            String policy = "{\n" +
+                    "  \"Version\": \"2012-10-17\",\n" +
+                    "  \"Statement\": [\n" +
+                    "    {\n" +
+                    "      \"Effect\": \"Allow\",\n" +
+                    "      \"Principal\": \"*\",\n" +
+                    "      \"Action\": \"s3:GetObject\",\n" +
+                    "      \"Resource\": \"arn:aws:s3:::" + bucketName + "/*\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
+
+            PutBucketPolicyRequest policyReq = PutBucketPolicyRequest.builder()
+                    .bucket(bucketName)
+                    .policy(policy)
+                    .build();
+            s3Client.putBucketPolicy(policyReq);
+        } catch (Exception e) {
+            log.error("Error setting public policy for temp bucket: " + bucketName, e);
         }
 
         try {

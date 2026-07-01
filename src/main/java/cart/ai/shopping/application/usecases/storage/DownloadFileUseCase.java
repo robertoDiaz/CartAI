@@ -8,11 +8,8 @@ package cart.ai.shopping.application.usecases.storage;
 import cart.ai.shopping.application.annotations.UseCase;
 import cart.ai.shopping.application.usecases.storage.commands.DownloadFileCommand;
 import cart.ai.shopping.domain.common.result.Result;
-import cart.ai.shopping.domain.model.identity.User;
-import cart.ai.shopping.domain.model.identity.vos.UserId;
 import cart.ai.shopping.domain.model.storage.FileDownloadStream;
 import cart.ai.shopping.domain.model.storage.StoredFile;
-import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.StoragePort;
 import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +27,6 @@ public class DownloadFileUseCase {
 
     private final StoragePort storagePort;
     private final StoredFileRepositoryPort storedFileRepositoryPort;
-    private final UserRepositoryPort userRepositoryPort;
 
     public Result<FileDownloadStream> execute(DownloadFileCommand command) {
         if (command == null || command.id().isBlank()) {
@@ -43,30 +39,18 @@ public class DownloadFileUseCase {
             return Result.error(NOT_FOUND);
         }
 
-        if (storedFile.ownerId() != null) {
-            User requester = userRepositoryPort.findByUserId(new UserId(command.requesterUserId()));
-            if (requester == null) {
-                return Result.error(UNAUTHORIZED);
-            }
-
-            boolean isAdmin = requester.roles().stream()
-                    .anyMatch(role -> role.name().equals("ADMIN"));
-
-            if (!storedFile.ownerId().equals(command.requesterUserId()) && !isAdmin) {
-                return Result.error(FORBIDDEN);
-            }
-        }
-
+        InputStream inputStream;
         try {
-            InputStream inputStream = storagePort.downloadFile(storedFile.fileName());
-            FileDownloadStream downloadStream = new FileDownloadStream(
-                    inputStream,
-                    storedFile.originalFileName(),
-                    storedFile.contentType()
-            );
-            return Result.success(downloadStream);
+            inputStream = storagePort.downloadFile(storedFile.fileName());
         } catch (Exception e) {
             return Result.error(NOT_FOUND);
         }
+
+        FileDownloadStream downloadStream = new FileDownloadStream(
+                inputStream,
+                storedFile.originalFileName(),
+                storedFile.contentType()
+        );
+        return Result.success(downloadStream);
     }
 }

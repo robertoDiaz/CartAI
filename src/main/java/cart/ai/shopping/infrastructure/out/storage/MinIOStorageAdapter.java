@@ -47,6 +47,28 @@ public class MinIOStorageAdapter extends BaseStorageAdapter implements StoragePo
         } catch (Exception e) {
             log.error("Error checking or creating bucket in MinIO: " + bucketName, e);
         }
+
+        try {
+            String policy = "{\n" +
+                    "  \"Version\": \"2012-10-17\",\n" +
+                    "  \"Statement\": [\n" +
+                    "    {\n" +
+                    "      \"Effect\": \"Allow\",\n" +
+                    "      \"Principal\": \"*\",\n" +
+                    "      \"Action\": \"s3:GetObject\",\n" +
+                    "      \"Resource\": \"arn:aws:s3:::" + bucketName + "/*\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
+
+            PutBucketPolicyRequest policyReq = PutBucketPolicyRequest.builder()
+                    .bucket(bucketName)
+                    .policy(policy)
+                    .build();
+            s3Client.putBucketPolicy(policyReq);
+        } catch (Exception e) {
+            log.error("Error setting public policy for bucket: " + bucketName, e);
+        }
     }
 
     @Override

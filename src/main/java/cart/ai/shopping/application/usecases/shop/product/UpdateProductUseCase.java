@@ -12,6 +12,7 @@ import cart.ai.shopping.domain.model.shop.Product;
 import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.StoragePort;
+import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
 
-import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 import static cart.ai.shopping.domain.common.result.ResultError.NOT_FOUND;
 
 /**
@@ -33,6 +33,7 @@ public class UpdateProductUseCase {
     private final ProductRepositoryPort productRepositoryPort;
     private final StoragePort storagePort;
     private final TempStoragePort tempStoragePort;
+    private final StoredFileRepositoryPort storedFileRepositoryPort;
 
     public Result<Product> execute(UpdateProductCommand command) {
         ProductId productId = new ProductId(command.id());
@@ -50,7 +51,10 @@ public class UpdateProductUseCase {
 
         for (String fileId : toPromote) {
             try {
-                storagePort.promoteFile(fileId, tempStoragePort.getBucketName());
+                cart.ai.shopping.domain.model.storage.StoredFile storedFile = storedFileRepositoryPort.findById(fileId);
+                if (storedFile != null) {
+                    storagePort.promoteFile(storedFile.fileName(), tempStoragePort.getBucketName());
+                }
             } catch (Exception e) {
                 log.warn("Could not promote temp product image {}: {}", fileId, e.getMessage());
             }
@@ -58,7 +62,10 @@ public class UpdateProductUseCase {
 
         for (String fileId : toDelete) {
             try {
-                storagePort.deleteFile(fileId);
+                cart.ai.shopping.domain.model.storage.StoredFile storedFile = storedFileRepositoryPort.findById(fileId);
+                if (storedFile != null) {
+                    storagePort.deleteFile(storedFile.fileName());
+                }
             } catch (Exception e) {
                 log.warn("Could not delete product image {}: {}", fileId, e.getMessage());
             }
