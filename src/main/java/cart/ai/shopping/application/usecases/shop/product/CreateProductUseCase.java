@@ -9,12 +9,11 @@ import cart.ai.shopping.application.annotations.UseCase;
 import cart.ai.shopping.application.usecases.shop.commands.CreateProductCommand;
 import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.shop.Product;
+import cart.ai.shopping.domain.model.shop.vos.ProductCreatedEvent;
 import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
+import cart.ai.shopping.domain.ports.shop.ProductEventPublisherPort;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
-import cart.ai.shopping.domain.ports.storage.StoragePort;
-import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
-import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,28 +29,13 @@ public class CreateProductUseCase {
 
     private final ProductRepositoryPort productRepositoryPort;
     private final IncrementIdGeneratorPort incrementIdGeneratorPort;
-    private final StoragePort storagePort;
-    private final TempStoragePort tempStoragePort;
-    private final StoredFileRepositoryPort storedFileRepositoryPort;
+    private final ProductEventPublisherPort productEventPublisherPort;
 
     public Result<Product> execute(CreateProductCommand command) {
         ProductId productId = new ProductId(incrementIdGeneratorPort.generate(Product.class));
 
         if (productRepositoryPort.find(productId) != null) {
             return Result.error(INTERNAL_ERROR);
-        }
-
-        if (command.imageFileIds() != null) {
-            for (String fileId : command.imageFileIds()) {
-                try {
-                    cart.ai.shopping.domain.model.storage.StoredFile storedFile = storedFileRepositoryPort.findById(fileId);
-                    if (storedFile != null) {
-                        storagePort.promoteFile(storedFile.fileName(), tempStoragePort.getBucketName());
-                    }
-                } catch (Exception e) {
-                    log.warn("Could not promote temp product image {}: {}", fileId, e.getMessage());
-                }
-            }
         }
 
         Product product = new Product(
@@ -63,6 +47,12 @@ public class CreateProductUseCase {
                 command.imageFileIds()
         );
 
-        return Result.success(productRepositoryPort.save(product));
+        Product saved = productRepositoryPort.save(product);
+
+        productEventPublisherPort.productCreated(
+                new ProductCreatedEvent(productId.value(), command.imageFileIds()
+        ));
+
+        return Result.success(saved);
     }
 }

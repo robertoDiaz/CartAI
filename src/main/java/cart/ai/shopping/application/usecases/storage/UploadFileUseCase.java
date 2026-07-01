@@ -14,7 +14,6 @@ import cart.ai.shopping.domain.model.storage.StoredFile;
 import cart.ai.shopping.domain.model.storage.vos.StoredFileEvent;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.identity.UserRepositoryPort;
-import cart.ai.shopping.domain.ports.storage.StoredFileEventPublisherPort;
 import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
 import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,6 @@ public class UploadFileUseCase {
     private final StoredFileRepositoryPort storedFileRepositoryPort;
     private final IncrementIdGeneratorPort idGeneratorPort;
     private final UserRepositoryPort userRepositoryPort;
-    private final StoredFileEventPublisherPort storedFileEventPublisherPort;
 
     private static @NonNull String getExtension(UploadFileCommand command) {
         String originalFileName = command.originalFileName();
@@ -97,10 +95,6 @@ public class UploadFileUseCase {
 
         try {
             StoredFile saved = storedFileRepositoryPort.save(storedFile);
-
-            storedFileEventPublisherPort.uploadConfirmed(
-                    new StoredFileEvent(uniqueFileName));
-
             return Result.success(saved);
         } catch (Exception e) {
             try {

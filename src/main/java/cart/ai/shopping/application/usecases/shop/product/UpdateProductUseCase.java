@@ -10,10 +10,9 @@ import cart.ai.shopping.application.usecases.shop.commands.UpdateProductCommand;
 import cart.ai.shopping.domain.common.result.Result;
 import cart.ai.shopping.domain.model.shop.Product;
 import cart.ai.shopping.domain.model.shop.vos.ProductId;
+import cart.ai.shopping.domain.model.shop.vos.ProductUpdatedEvent;
+import cart.ai.shopping.domain.ports.shop.ProductEventPublisherPort;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
-import cart.ai.shopping.domain.ports.storage.StoragePort;
-import cart.ai.shopping.domain.ports.storage.StoredFileRepositoryPort;
-import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,9 +30,7 @@ import static cart.ai.shopping.domain.common.result.ResultError.NOT_FOUND;
 public class UpdateProductUseCase {
 
     private final ProductRepositoryPort productRepositoryPort;
-    private final StoragePort storagePort;
-    private final TempStoragePort tempStoragePort;
-    private final StoredFileRepositoryPort storedFileRepositoryPort;
+    private final ProductEventPublisherPort productEventPublisherPort;
 
     public Result<Product> execute(UpdateProductCommand command) {
         ProductId productId = new ProductId(command.id());
@@ -43,35 +40,16 @@ public class UpdateProductUseCase {
             return Result.error(NOT_FOUND);
         }
 
-        List<String> newFileIds = command.imageFileIds() != null ? command.imageFileIds() : Collections.emptyList();
         List<String> oldFileIds = existingProduct.getImageFileIds() != null ? existingProduct.getImageFileIds() : Collections.emptyList();
-
-        List<String> toPromote = newFileIds.stream().filter(id -> !oldFileIds.contains(id)).toList();
-        List<String> toDelete = oldFileIds.stream().filter(id -> !newFileIds.contains(id)).toList();
-
-        for (String fileId : toPromote) {
-            try {
-                cart.ai.shopping.domain.model.storage.StoredFile storedFile = storedFileRepositoryPort.findById(fileId);
-                if (storedFile != null) {
-                    storagePort.promoteFile(storedFile.fileName(), tempStoragePort.getBucketName());
-                }
-            } catch (Exception e) {
-                log.warn("Could not promote temp product image {}: {}", fileId, e.getMessage());
-            }
-        }
-
-        for (String fileId : toDelete) {
-            try {
-                cart.ai.shopping.domain.model.storage.StoredFile storedFile = storedFileRepositoryPort.findById(fileId);
-                if (storedFile != null) {
-                    storagePort.deleteFile(storedFile.fileName());
-                }
-            } catch (Exception e) {
-                log.warn("Could not delete product image {}: {}", fileId, e.getMessage());
-            }
-        }
+        List<String> newFileIds = command.imageFileIds() != null ? command.imageFileIds() : Collections.emptyList();
 
         Product product = new Product(productId, command.name(), command.description(), command.price(), command.stock(), command.imageFileIds());
-        return Result.success(productRepositoryPort.save(product));
+        Product saved = productRepositoryPort.save(product);
+
+        productEventPublisherPort.productUpdated(
+                new ProductUpdatedEvent(productId.value(), oldFileIds, newFileIds)
+        );
+
+        return Result.success(saved);
     }
 }

@@ -23,15 +23,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class StoredFileEventPublisherOutboxTransactionAdapter implements StoredFileEventPublisherPort {
 
-    private static final String UPLOAD_TOPIC = "storage-uploaded-topic";
     private static final String DELETED_TOPIC = "storage-deleted-topic";
     private final MongoTemplate mongoTemplate;
     private final ObjectMapper objectMapper;
-
-    @Override
-    public void uploadConfirmed(StoredFileEvent event) {
-        saveOutbox(event, UPLOAD_TOPIC);
-    }
 
     @Override
     public void deletionConfirmed(StoredFileEvent event) {

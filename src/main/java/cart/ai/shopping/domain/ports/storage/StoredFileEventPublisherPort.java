@@ -12,7 +12,5 @@ import cart.ai.shopping.domain.model.storage.vos.StoredFileEvent;
  */
 public interface StoredFileEventPublisherPort {
 
-    void uploadConfirmed(StoredFileEvent event);
-
     void deletionConfirmed(StoredFileEvent event);
 }
