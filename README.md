@@ -86,6 +86,13 @@ graph TD
 
 ---
 
+## 📋 Project Management
+
+This project uses [Linear](https://linear.app/cartai-shop) to track all tasks, features, and bugs.
+Commit messages are prefixed with the corresponding Linear issue ID (e.g., `CAR-7: feat: ...`).
+
+---
+
 ## 🚀 Implemented Patterns & Best Practices
 
 ### 1. Security & Authentication (JWT + Spring Security)
