@@ -12,7 +12,10 @@ import cart.ai.shopping.domain.model.shop.Product;
 import cart.ai.shopping.domain.model.shop.vos.ProductId;
 import cart.ai.shopping.domain.ports.common.IncrementIdGeneratorPort;
 import cart.ai.shopping.domain.ports.shop.ProductRepositoryPort;
+import cart.ai.shopping.domain.ports.storage.StoragePort;
+import cart.ai.shopping.domain.ports.storage.TempStoragePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
 
@@ -21,16 +24,29 @@ import static cart.ai.shopping.domain.common.result.ResultError.INTERNAL_ERROR;
  */
 @RequiredArgsConstructor
 @UseCase
+@Slf4j
 public class CreateProductUseCase {
 
     private final ProductRepositoryPort productRepositoryPort;
     private final IncrementIdGeneratorPort incrementIdGeneratorPort;
+    private final StoragePort storagePort;
+    private final TempStoragePort tempStoragePort;
 
     public Result<Product> execute(CreateProductCommand command) {
         ProductId productId = new ProductId(incrementIdGeneratorPort.generate(Product.class));
 
         if (productRepositoryPort.find(productId) != null) {
             return Result.error(INTERNAL_ERROR);
+        }
+
+        if (command.imageFileIds() != null) {
+            for (String fileId : command.imageFileIds()) {
+                try {
+                    storagePort.promoteFile(fileId, tempStoragePort.getBucketName());
+                } catch (Exception e) {
+                    log.warn("Could not promote temp product image {}: {}", fileId, e.getMessage());
+                }
+            }
         }
 
         Product product = new Product(
